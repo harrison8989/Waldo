@@ -1,0 +1,52 @@
+LoggedIn
+Endpoint Ping;
+Endpoint Pong;
+
+Sequences {
+    PingPongSeq: Ping.start_ping -> Pong.perform_pong -> Ping.next_ping -> Pong.final_pong;
+}
+
+Sequence PingPongSeq (Text start) returns Text final {
+    Ping.start_ping {
+    }
+    Pong.perform_pong {
+    }
+    Ping.next_ping {
+       start = start + getText();
+    }
+    Pong.final_pong {
+       start = start + getText();
+	   final = start;
+    }
+}
+
+Ping
+{
+	Text myText = '';
+	Public Function getText() returns Text
+	{
+		return myText;
+	}
+	Public Function changeText(Text text) returns Nothing
+	{
+		myText = text;
+	}
+	Public Function ping_seq(Text text) returns Text
+	{
+		
+		return PingPongSeq(text);
+	}
+}
+
+Pong
+{
+	Text myText = '';
+	Public Function getText() returns Text
+	{
+		return myText;
+	}
+	Public Function changeText(Text text) returns Nothing
+	{
+		myText = text;
+	}
+}

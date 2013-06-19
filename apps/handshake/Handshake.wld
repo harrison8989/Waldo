@@ -1,0 +1,113 @@
+Handshake
+Endpoint Client;
+Endpoint Server;
+
+Sequences {
+	HandshakeSeq: Client.start -> Server.hello -> Client.verify -> Server.complete;
+	SeqSendMsg: Client.send -> Server.receive;
+}
+
+Sequence HandshakeSeq (Number TLS, List(element: Text) cipher, List(element: Text) compress) returns Number success {
+	Number n;
+	Number rand;
+	Number myKey;
+	Text myCiph;
+	Text myComp;
+	Text certificate;
+	TrueFalse clientYes = False;
+	TrueFalse serverYes = False;
+	Client.start {
+		n = 0;
+		//done already lol
+	}
+	
+	Server.hello {
+		if(ciph in cipher) {
+			myCiph = ciph;
+			n += 1;
+		} 
+		if(comp in compress) {
+			myComp = comp;
+			n += 10;
+		}
+		certificate = cert;
+	}
+	
+	Client.verify {
+		if('lolz' in certificate) {
+			n += 100;
+			rand = random;
+			myKey = key;
+			//finish!
+			clientYes = True;
+			
+		}
+	}
+	
+	Server.complete {
+		n += 1000;
+		serverYes = True;
+		success = n;
+		
+	}
+	
+}
+
+Sequence SeqSendMsg (Text msg) 
+{
+	Client.send {
+	}
+	
+	Server.receive {
+		signal(display_msg_func,msg);
+	}
+
+}
+
+Client
+{
+	Number random = 1299321;
+	Number key = 2401;
+	List(element: Text) cipherList = ["cipherwon", "ciphertoo"];
+	List(element: Text) compressList = ["compresswon", "compresstoo"];
+	
+	Function (in: Text; returns: Nothing) display_msg_func;
+	
+	onCreate (Function (in: Text; returns: Nothing) init_display_msg_func) {
+		display_msg_func = init_display_msg_func;
+	}
+	
+	Public Function send_msg(Text msg) {
+		SeqSendMsg(msg);
+	}
+	
+	
+	Public Function startSeq() returns Number
+	{
+		return HandshakeSeq(1.1, cipherList, compressList);
+	}
+	
+}
+
+Server
+{
+	Number t = 1.1;
+	Text ciph = "cipherwon";
+	Text comp = "compresstoo";
+	Text cert = '';
+	
+	Function (in: Text; returns: Nothing) display_msg_func;
+	
+	onCreate (Function (in: Text; returns: Nothing) init_display_msg_func) {
+		display_msg_func = init_display_msg_func;
+	}
+	
+	
+	
+	
+	Public Function setCert(Text c) returns Nothing
+	{
+		cert = c;
+	}
+	
+}

@@ -1,0 +1,28 @@
+BankAccountExample
+Endpoint Account;
+
+Account
+{
+    Number balance;
+    Number acct_id;
+    onCreate(Number initial_balance, Number in_acct_id)
+    {
+        balance = initial_balance;
+        acct_id = in_acct_id;
+    }
+
+    Public Function get_balance() returns Number
+    {
+        return balance;
+    }
+
+    Public Function set_balance(Number new_value)
+    {
+        balance = new_value;
+    }
+
+    Public Function get_id() returns Number
+    {
+        return acct_id;
+    }
+}

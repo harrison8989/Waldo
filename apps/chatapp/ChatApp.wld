@@ -1,0 +1,40 @@
+ChatApp
+Symmetric ChatterA, ChatterB;
+
+Sequences {
+  SeqSendMsg: ChatterA.send_msg -> ChatterB.receive_msg;
+}
+
+Sequence SeqSendMsg (Text msg)
+{
+    Text other;
+	ChatterA.send_msg{
+		other = name;
+	}
+    ChatterB.receive_msg
+    {
+        signal(display_msg_func,other + ": " + msg);
+    }
+}
+
+ChatterA
+{
+	Text name;
+	Function (in: Text; returns: Nothing) display_msg_func;
+
+	onCreate(Function (in: Text; returns: Nothing) init_display_msg_func, Text n)
+	{
+		display_msg_func = init_display_msg_func;
+		name = n;
+	}
+	Public Function send_msg_to_other_side(Text msg)
+	{
+		SeqSendMsg(msg);
+	}
+	
+	/*Public Function getName() returns: Text
+	{
+		return name;
+	}*/
+	
+}

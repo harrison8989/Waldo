@@ -1,0 +1,47 @@
+Handshake
+Endpoint Client;
+Endpoint Server;
+
+Sequences {
+	SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
+}
+
+Sequence SeqSendMSG (Text msg) returns Text result
+{
+	Client.sendMSG {
+	}
+	
+	Server.receiveMSG {
+		signal(display_msg_func, msg);
+	}
+
+}
+ 
+Client
+{
+	Text name;
+	
+	onCreate (Text n) {
+		name = n;
+		SeqSendMSG(name + " has connected!");
+	}
+	
+	Public Function send_msg(Text msg) {
+		SeqSendMSG(msg);
+	}
+	
+	Public Function getName() returns Text {
+		return name;
+	}
+	
+}
+
+Server
+{
+	
+	Function (in: Text; returns: Nothing) display_msg_func;
+	
+	onCreate (Function (in: Text; returns: Nothing) init_display_msg_func) {
+		display_msg_func = init_display_msg_func;
+	}
+}

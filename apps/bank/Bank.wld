@@ -1,0 +1,48 @@
+BankExample
+Endpoint Bank;
+Bank
+{   
+	// tracks all accounts that are in the bank.
+    Map (from: Number, to: Endpoint) all_endpoints;
+	
+	// Pushes endpoint into map
+    Public Function add_endpoint (Endpoint endpt) 
+    {
+        Number id = endpt.get_id();
+        all_endpoints[id] = endpt;
+    }
+
+    // Runs through all accounts on this endpoint and returns
+    // how much total money this bank is holding
+    Public Function total_money_held () returns Number
+    {
+        Number total_balance = 0;
+        for (Number key in all_endpoints)
+        {
+            Endpoint endpt = all_endpoints[key];
+            total_balance += endpt.get_balance();
+        }
+		return total_balance;
+    }
+
+    // Transfer money from one account to another.  Return True if action completed, 
+    // return False otherwise.
+    Public Function transfer_money(Number from_id, Number to_id, Number amount)
+        returns TrueFalse
+    {
+         if ((not (from_id in all_endpoints)) or
+             (not (to_id in all_endpoints)))
+         {
+             return False;
+         }
+
+         Endpoint from_endpoint = all_endpoints[from_id];
+         if (amount > from_endpoint.get_balance())
+             return False;
+
+         Endpoint to_endpoint = all_endpoints[to_id];
+         from_endpoint.set_balance( from_endpoint.get_balance() - amount);
+         to_endpoint.set_balance( to_endpoint.get_balance() + amount);
+         return True;
+    }
+}
