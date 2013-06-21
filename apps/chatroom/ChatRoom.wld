@@ -1,91 +1,129 @@
-Handshake
+Handshaker
 Endpoint Client;
 Endpoint Server;
 
 Sequences {
 	SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
-	SeqSendCMD: Client.sendCMD -> Server.receiveCMD;
+	SeqSendCMD: Client.sendCMD -> Server.receiveCMD -> Client.update;
 	SeqAlertClient: Server.alert -> Client.get;
 }
 
-Sequence SeqSendMSG (Text msg) returns Text result
+Sequence SeqSendMSG (Text msg)
 {
 	Client.sendMSG {
+
 	}
-	
+
 	Server.receiveMSG {
 		signal(display_msg_func, msg);
 	}
 
 }
 
-Sequence SeqSendCMD (Number command, TrueFalse entervote) returns Text result
+Sequence SeqSendCMD (Number command, TrueFalse toEnterVote) returns TrueFalse ready
 {
-	
+	TrueFalse readyStatus;
+
+	List (element: Number) temp;
+	Number theGame = -1;
+
+
 	Client.sendCMD {
-		
+		theGame = currGame;
 	}
-	
+
 	Server.receiveCMD {
-		signal(vote_func, command, entervote);
+		if(command > -3) {
+			     signal(vote_func, command, toEnterVote);
+		}
+		for(Number n in gameStatus)
+			   temp.append(n);
+		if(len(temp) >= 3) {
+			if((temp[0] >= 2) and (theGame == 0))
+				readyStatus = True;
+			if((temp[1] >= 2) and (theGame == 1))
+				readyStatus = True;
+			if((temp[2] >= 2) and (theGame == 2))
+				readyStatus = True;
+		}
+
+	}
+
+	Client.update {
+		ready = readyStatus;
 	}
 
 }
 
-Sequence SeqAlertClient (List (element: Number) games) returns Text result
+Sequence SeqAlertClient (List (element: Number) games)
 {
 	Server.alert {
-		signal(display_msg_func, "Something is happening...");
 	}
-	
+
 	Client.get {
 		signal(getData, games);
 	}
 
 }
- 
+
 Client
 {
 	Number currGame;
 	Text name;
-	
+
 	Function (in: Text; returns: Nothing) getData;
-	
+
 	onCreate (Function (in: Text; returns: Nothing) init_get_data, Text n) {
 		getData = init_get_data;
 		name = n;
 		currGame = 0;
-		SeqSendMSG(name + " has connected!");
 	}
-	
+
 	Public Function send_msg(Text msg) {
 		SeqSendMSG(msg);
 	}
-	
-	Public Function send_cmd(Number cmd, TrueFalse enter) {
-		SeqSendCMD(cmd, enter);
+
+	Public Function send_cmd(Number cmd, TrueFalse toEnter) returns TrueFalse {
+		return SeqSendCMD(cmd, toEnter);
 	}
-	
+
 	Public Function getName() returns Text {
 		return name;
 	}
-	
+
+	Public Function getGame() returns Number {
+	       return currGame;
+	}
+
+	Public Function setGame(Number n) {
+	       currGame = n;
+	}
 }
 
 Server
 {
-	
+	List (element: Number) gameStatus;
+
+
 	Function (in: Text; returns: Nothing) display_msg_func;
 	Function (in: Number, TrueFalse; returns: Nothing) vote_func;
-	
+
 	onCreate (Function (in: Text; returns: Nothing) init_display_msg_func,
 			  Function (in: Number, TrueFalse; returns: Nothing) init_vote_func) {
 		display_msg_func = init_display_msg_func;
 		vote_func = init_vote_func;
 	}
-	
+
 	Public Function alertClient(List (element: Number) availGame) {
 		SeqAlertClient(availGame);
 	}
-		
+
+	Public Function receiveStatus(List (element:Number) status) {
+	       gameStatus = [];
+	       for(Number num in status)
+	       		  gameStatus.append(num);
+
+	}
+
+
 }
