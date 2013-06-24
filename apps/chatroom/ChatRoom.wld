@@ -5,7 +5,10 @@ Endpoint Server;
 Sequences {
 	SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
 	SeqSendCMD: Client.sendCMD -> Server.receiveCMD -> Client.update;
-	SeqAlertClient: Server.alert -> Client.get;
+	SeqGetGames: Server.alert -> Client.get;
+	SeqRetrieveMSG: Client.request -> Server.obtainMSG -> Client.put;
+	SeqCurrGame: Client.init -> Server.obtainGame -> Client.receiveGame;
+
 }
 
 Sequence SeqSendMSG (Text msg)
@@ -55,7 +58,7 @@ Sequence SeqSendCMD (Number command, TrueFalse toEnterVote) returns TrueFalse re
 
 }
 
-Sequence SeqAlertClient (List (element: Number) games)
+Sequence SeqGetGames (List (element: Number) games)
 {
 	Server.alert {
 	}
@@ -66,17 +69,65 @@ Sequence SeqAlertClient (List (element: Number) games)
 
 }
 
+Sequence SeqRetrieveMSG ()
+{
+	Number position;
+	Text t;
+	TrueFalse shift = False;
+	Client.request {
+	        position = pos;
+	}
+
+	Server.obtainMSG {
+		if(position < len(msgs)) {
+		        t = msgs[position];
+			shift = True;
+		}
+	}
+
+
+	Client.put {
+		if(shift)
+			pos += 1;
+		if(t != '') {
+		     	signal(getMSG, t);
+			signal(getData, [9, 9, 9]);
+		}
+	}
+
+}
+
+Sequence SeqCurrGame ()
+{
+	Number currPos;
+	Client.init {
+
+	}
+	Server.obtainGame {
+
+		currPos = len(msgs);
+	}
+	Client.receiveGame {
+		pos = currPos;
+	}
+
+}
+
 Client
 {
 	Number currGame;
 	Text name;
+	Number pos;
 
 	Function (in: Text; returns: Nothing) getData;
+	Function (in: Text; returns: Nothing) getMSG;
 
-	onCreate (Function (in: Text; returns: Nothing) init_get_data, Text n) {
+	onCreate (Function (in: Text; returns: Nothing) init_get_data, Function (returns: Text) init_get_MSG, Text n) {
 		getData = init_get_data;
+		getMSG = init_get_MSG;
 		name = n;
-		currGame = 0;
+		currGame = -1;
+		SeqCurrGame();
 	}
 
 	Public Function send_msg(Text msg) {
@@ -98,11 +149,17 @@ Client
 	Public Function setGame(Number n) {
 	       currGame = n;
 	}
+
+	Public Function retrieveMSG() {
+	       SeqRetrieveMSG();
+	}
 }
 
 Server
 {
 	List (element: Number) gameStatus;
+	List (element: Text) msgs;
+
 
 
 	Function (in: Text; returns: Nothing) display_msg_func;
@@ -115,7 +172,7 @@ Server
 	}
 
 	Public Function alertClient(List (element: Number) availGame) {
-		SeqAlertClient(availGame);
+		SeqGetGames(availGame);
 	}
 
 	Public Function receiveStatus(List (element:Number) status) {
@@ -123,6 +180,19 @@ Server
 	       for(Number num in status)
 	       		  gameStatus.append(num);
 
+	}
+
+	Public Function addMSG(Text msg) {
+	       if(msg != '')
+	       	      msgs.append(msg);
+	}
+
+	Public Function getMSGS() returns List(element:Text) {
+	       return msgs;
+	}
+
+	Public Function changeMSGS(List(element:Text) list) {
+	       msgs = list;
 	}
 
 
