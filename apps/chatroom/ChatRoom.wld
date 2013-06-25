@@ -1,199 +1,182 @@
-Handshaker
+ChatRoom
 Endpoint Client;
 Endpoint Server;
 
 Sequences {
-	SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
-	SeqSendCMD: Client.sendCMD -> Server.receiveCMD -> Client.update;
-	SeqGetGames: Server.alert -> Client.get;
-	SeqRetrieveMSG: Client.request -> Server.obtainMSG -> Client.put;
-	SeqCurrGame: Client.init -> Server.obtainGame -> Client.receiveGame;
+    SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
+    SeqSendCMD: Client.sendCMD -> Server.receiveCMD -> Client.update;
+    SeqRetrieveMSG: Client.request -> Server.obtainMSG -> Client.put;
+    SeqCurrGame: Client.init -> Server.obtainGame -> Client.receiveGame;
 
 }
 
 Sequence SeqSendMSG (Text msg)
 {
-	Client.sendMSG {
+    Client.sendMSG {
 
 	}
 
-	Server.receiveMSG {
-		signal(display_msg_func, msg);
-	}
+    Server.receiveMSG {
+	signal(display_msg_func, msg);
+    }
 
 }
 
-Sequence SeqSendCMD (Number command, TrueFalse toEnterVote) returns TrueFalse ready
-{
-	TrueFalse readyStatus;
+Sequence SeqSendCMD (Number command, TrueFalse toEnterVote) returns Number players {
+    Number numPlayers;
 
-	List (element: Number) temp;
-	Number theGame = -1;
+    List (element: Number) temp;
+    Number theGame = -1;
 
 
-	Client.sendCMD {
-		theGame = currGame;
+    Client.sendCMD {
+	theGame = currGame;
+    }
+
+    Server.receiveCMD {
+	if(command > -3) {
+	    signal(vote_func, command, toEnterVote);
+	}
+	for(Number n in gameStatus)
+	    temp.append(n);
+	if(len(temp) >= 3) {
+	    if(temp[theGame] >= 1)
+		numPlayers = temp[theGame];
 	}
 
-	Server.receiveCMD {
-		if(command > -3) {
-			     signal(vote_func, command, toEnterVote);
-		}
-		for(Number n in gameStatus)
-			   temp.append(n);
-		if(len(temp) >= 3) {
-			if((temp[0] >= 2) and (theGame == 0))
-				readyStatus = True;
-			if((temp[1] >= 2) and (theGame == 1))
-				readyStatus = True;
-			if((temp[2] >= 2) and (theGame == 2))
-				readyStatus = True;
-		}
+    }
 
-	}
-
-	Client.update {
-		ready = readyStatus;
-	}
-
-}
-
-Sequence SeqGetGames (List (element: Number) games)
-{
-	Server.alert {
-	}
-
-	Client.get {
-		signal(getData, games);
-	}
+    Client.update {
+	players = numPlayers;
+    }
 
 }
 
 Sequence SeqRetrieveMSG ()
 {
-	Number position;
-	Text t;
-	TrueFalse shift = False;
-	Client.request {
-	        position = pos;
-	}
+    Number position;
+    Text t;
+    TrueFalse shift = False;
+    TrueFalse hasInitialized;
+    Client.request {
+	position = pos;
+	hasInitialized = initialized;
+    }
 
-	Server.obtainMSG {
-		if(position < len(msgs)) {
-		        t = msgs[position];
-			shift = True;
-		}
+    Server.obtainMSG {
+	if((msgsLength >= 0) and (not hasInitialized)) {
+	    position = len(msgs) - 1;
+	    hasInitialized = True;
 	}
+	if(position < len(msgs)) {
+	    t = msgs[position];
+	    shift = True;
+	}
+    }
 
 
-	Client.put {
-		if(shift)
-			pos += 1;
-		if(t != '') {
-		     	signal(getMSG, t);
-			signal(getData, [9, 9, 9]);
-		}
+    Client.put {
+	initialized = hasInitialized;
+	pos = position;
+	if(shift)
+	    pos += 1;
+	if(t != '') {
+	    signal(getMSG, t);
 	}
+    }
 
 }
 
 Sequence SeqCurrGame ()
 {
-	Number currPos;
-	Client.init {
+    Number currPos;
+    Client.init {
 
-	}
-	Server.obtainGame {
-
-		currPos = len(msgs);
-	}
-	Client.receiveGame {
-		pos = currPos;
-	}
+    }
+    Server.obtainGame {
+	currPos = len(msgs);
+    }
+    Client.receiveGame {
+	pos = currPos;
+    }
 
 }
 
 Client
 {
-	Number currGame;
-	Text name;
-	Number pos;
+    Number currGame;
+    Text name;
+    Number pos;
+    TrueFalse initialized = False;
 
-	Function (in: Text; returns: Nothing) getData;
-	Function (in: Text; returns: Nothing) getMSG;
+    Function (in: Text; returns: Nothing) getMSG;
 
-	onCreate (Function (in: Text; returns: Nothing) init_get_data, Function (returns: Text) init_get_MSG, Text n) {
-		getData = init_get_data;
-		getMSG = init_get_MSG;
-		name = n;
-		currGame = -1;
-		SeqCurrGame();
-	}
+    onCreate (Function (returns: Text) init_get_MSG, Text n) {
+	getMSG = init_get_MSG;
+	name = n;
+	currGame = -1;
+    }
 
-	Public Function send_msg(Text msg) {
-		SeqSendMSG(msg);
-	}
+    Public Function send_msg(Text msg) {
+	SeqSendMSG(msg);
+    }
 
-	Public Function send_cmd(Number cmd, TrueFalse toEnter) returns TrueFalse {
-		return SeqSendCMD(cmd, toEnter);
-	}
+    Public Function send_cmd(Number cmd, TrueFalse toEnter) returns Number {
+	return SeqSendCMD(cmd, toEnter);
+    }
 
-	Public Function getName() returns Text {
-		return name;
-	}
+    Public Function getName() returns Text {
+	return name;
+    }
 
-	Public Function getGame() returns Number {
-	       return currGame;
-	}
+    Public Function getGame() returns Number {
+	return currGame;
+    }
 
-	Public Function setGame(Number n) {
-	       currGame = n;
-	}
+    Public Function setGame(Number n) {
+	currGame = n;
+    }
 
-	Public Function retrieveMSG() {
-	       SeqRetrieveMSG();
-	}
+    Public Function retrieveMSG() {
+	SeqRetrieveMSG();
+    }
 }
 
 Server
 {
-	List (element: Number) gameStatus;
-	List (element: Text) msgs;
+    List (element: Number) gameStatus;
+    List (element: Text) msgs;
+    Number msgsLength = -1;
 
+    Function (in: Text; returns: Nothing) display_msg_func;
+    Function (in: Number, TrueFalse; returns: Nothing) vote_func;
 
+    onCreate (Function (in: Text; returns: Nothing) init_display_msg_func,
+	      Function (in: Number, TrueFalse; returns: Nothing) init_vote_func) {
+	display_msg_func = init_display_msg_func;
+	vote_func = init_vote_func;
+    }
 
-	Function (in: Text; returns: Nothing) display_msg_func;
-	Function (in: Number, TrueFalse; returns: Nothing) vote_func;
+    Public Function receiveStatus(List (element:Number) status) {
+	gameStatus = [];
+	for(Number num in status)
+	    gameStatus.append(num);
 
-	onCreate (Function (in: Text; returns: Nothing) init_display_msg_func,
-			  Function (in: Number, TrueFalse; returns: Nothing) init_vote_func) {
-		display_msg_func = init_display_msg_func;
-		vote_func = init_vote_func;
-	}
+    }
 
-	Public Function alertClient(List (element: Number) availGame) {
-		SeqGetGames(availGame);
-	}
+    Public Function addMSG(Text msg) {
+	if(msg != '')
+	    msgs.append(msg);
+    }
 
-	Public Function receiveStatus(List (element:Number) status) {
-	       gameStatus = [];
-	       for(Number num in status)
-	       		  gameStatus.append(num);
+    Public Function getMSGS() returns List(element:Text) {
+	return msgs;
+    }
 
-	}
-
-	Public Function addMSG(Text msg) {
-	       if(msg != '')
-	       	      msgs.append(msg);
-	}
-
-	Public Function getMSGS() returns List(element:Text) {
-	       return msgs;
-	}
-
-	Public Function changeMSGS(List(element:Text) list) {
-	       msgs = list;
-	}
+    Public Function changeMSGS(List(element:Text) list) {
+	msgs = list;
+	msgsLength = len(msgs);
+    }
 
 
 }

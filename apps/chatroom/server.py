@@ -12,6 +12,7 @@ msgs = []
 REFRESH = .1
 
 def connected(endpoint):
+        endpoint.changeMSGS(msgs)
 	while True:
 		time.sleep(REFRESH)
 		endpoint.service_signal()
@@ -21,16 +22,7 @@ def display_msg(endpoint, msg):
 	if(msg != ''):
                 print(msg)
                 msgs.append(msg)
-        #msgPos += 1
-        #if(len(msgs) >= 1000):
-        #        msgs[msgPos % 1000] = msg
-        #else:
-        #endpoint.addMSG(msg)
         endpoint.changeMSGS(msgs) #I think I should make updating a separate function
-        #print endpoint.getMSGS()
-        #print msgs
-
-        #endpoint.send_msg(msg)
 
 
 def vote(endpoint, gameNum, enter):

@@ -10,7 +10,6 @@ full = ["Bang!", "Kill Dr. Lucky", "Sitting Ducks"]
 count = [0,0,0]
 EXITSTRING = "exit"
 QUITSTRING = "quit"
-UPDATESTRING = "up"
 REFRESH = 100
 myGame = -1
 ready = False
@@ -25,16 +24,8 @@ def switch(msg):
 			"ducks": 2,
 			EXITSTRING: -2,
 			QUITSTRING: -3,
-                        UPDATESTRING: -4
 		}[msg]
 	return -1
-
-
-
-def getData(endpoint, data):
-        pass
-        #if(data[myGame] >= 2 and myGame >= 0):
-                #print full[myGame] + ' is ready!'
 
 def getMSG(endpoint, msg):
         listbox.insert(END, msg)
@@ -62,7 +53,7 @@ e.focus_set()
 
 #client stuff
 
-client = Waldo.tcp_connect(Client, HOSTNAME, PORT, getData, getMSG, name)
+client = Waldo.tcp_connect(Client, HOSTNAME, PORT, getMSG, name)
 
 def cb(event):
         callback()
@@ -116,8 +107,12 @@ def task(ready):
         myGame = client.getGame()
         temp = ready
         ready = client.send_cmd(-3, False)
-        if temp != ready and ready:
-                listbox.insert(END, full[myGame] + " is ready to play!")
+        if temp != ready and myGame >= 0:
+                print str(temp) + " " + str(ready) + " "
+                if ready >= 2:
+                        listbox.insert(END, full[myGame] + " is ready to play! Currently, " + str(int(ready)) + " people want to play.")
+                else:
+                        listbox.insert(END, "We need one more person to play " + full[myGame] + "!")
                 listbox.yview(END)
         thing = client.service_signal()
 
