@@ -1,0 +1,49 @@
+Broadcast
+Endpoint Client;
+Endpoint Server;
+
+Sequences {
+    SeqBroadcast: Server.sendMSG -> Client.receiveMSG;
+
+}
+
+Sequence SeqBroadcast(Text msg)
+{
+    Server.sendMSG {
+
+    }
+    Client.receiveMSG {
+	if(msg != '') {
+	    signal(getMSG, msg);
+	}
+    }
+
+}
+
+Client
+{
+    Function (in: Text; returns: Nothing) getMSG;
+
+    onCreate (Function (returns: Text) init_get_MSG) {
+	getMSG = init_get_MSG;
+    }
+
+}
+
+Server
+{
+
+    Function (in: Text; returns: Nothing) display_msg_func;
+    Function (in: Number, TrueFalse; returns: Nothing) vote_func;
+
+    onCreate (Endpoint manager_e) {
+	Endpoint manager = manager_e;
+	manager.add_endpoint(self);
+    }
+
+    Public Function broadcastMSG(Text msg) {
+	SeqBroadcast(msg);
+    }
+
+
+}

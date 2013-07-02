@@ -1,0 +1,3 @@
+correlation of number of clients and thoroughput
+thoroughput appears quadratic... (maybe it is!)
+but latency appears linear! 

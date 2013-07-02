@@ -1,0 +1,21 @@
+Manager
+Endpoint Manager;
+
+Manager
+{
+    //remember, these endpoints are serverside, not clientside
+    Map (from: Text, to: Endpoint) all_endpoints;
+
+    Public Function add_endpoint (Endpoint e) {
+	Text epid = e.id();
+	all_endpoints[epid] = e;
+    }
+
+    Public Function broadcast (Text msg) {
+	for(Text epid in all_endpoints) {
+	    Endpoint e = all_endpoints[epid];
+	    e.broadcastMSG(msg);
+	}
+    }
+
+}
