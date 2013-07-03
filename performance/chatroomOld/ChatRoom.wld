@@ -18,10 +18,7 @@ Sequence SeqSendMSG (Text msg) returns Text result
 }
 
 Client
-{
-    onCreate () {
-    }
-
+{ 
     Public Function send_msg(Text msg) {
         SeqSendMSG(msg);
     }

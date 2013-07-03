@@ -6,46 +6,31 @@ sys.path.append("C:/Users/perceptual/Waldo")
 from waldo.lib import Waldo
 
 HOSTNAME = '127.0.0.1'
-PORT = 8195
-count = [0,0,0]
-full = ["Bang!", "Kill Dr. Lucky", "Sitting Ducks"]
-msgs = []
-REFRESH = .1
+PORT = 7937
+startTime = 0
+f = open('serverLog', 'w')
 
 m = Waldo.no_partner_create(Manager)
+numMessages = 1000
+numConnected = 0
 
 def connected(endpoint):
         '''
         connected_callback function when server connects
+        ... doesn't do anything right now
         '''
-        endpoint.changeMSGS(msgs)
-	while True:
-		time.sleep(REFRESH)
-		endpoint.service_signal()
-                endpoint.receiveStatus(count)
-
-def display_msg(endpoint, msg):
-        '''
-        display message, also updates list of messages
-        '''
-	if(msg != ''):
-                print(msg)
-                msgs.append(msg)
-        endpoint.changeMSGS(msgs) #I think I should make updating a separate function
+        global numConnected
+        numConnected += 1
 
 
-def vote(endpoint, gameNum, enter):
-        '''
-        vote function used by client
-        '''
-	if(gameNum >= 0):
-		increment = -1
-		if enter:
-			increment = 1
-		count[int(gameNum)] += increment
+Waldo.tcp_accept(Server, HOSTNAME, PORT, m, connected_callback = connected)
+print 'Server is running. Better go catch it!'
 
-
-Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, vote, m, connected_callback = connected)
-print 'Server is up and running.'
 while True:
-	pass
+        if numConnected:
+                print 'Started'
+                startTime = time.time()
+                for i in range(0, numMessages):
+                        m.broadcast(str(i))
+                f.write(str(numConnected * numMessages) + ' ' + str(time.time() - startTime) + '\n')
+                print 'Finished'

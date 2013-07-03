@@ -15,8 +15,6 @@ n = 1
 
 def connected(endpoint):
         global startTime
-        global f
-        global n
         print 'Started'
         startTime = time.time()
         while True:

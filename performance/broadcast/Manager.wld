@@ -15,6 +15,7 @@ Manager
 	for(Text epid in all_endpoints) {
 	    Endpoint e = all_endpoints[epid];
 	    e.broadcastMSG(msg);
+
 	}
     }
 
