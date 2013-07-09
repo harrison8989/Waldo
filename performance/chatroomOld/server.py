@@ -1,7 +1,7 @@
 from emitted import Server
 import time
 import sys
-sys.path.append("C:/Users/perceptual/Waldo/")
+sys.path.append("../../")
 from waldo.lib import Waldo
 
 HOSTNAME = '127.0.0.1'
@@ -18,16 +18,17 @@ def connected(endpoint):
         print 'Started'
         startTime = time.time()
         while True:
-                pass
-                #endpoint.service_signal()
+                endpoint.service_signal()
                 #because of this queue, something is still running...
                 #the service_signal is making something last longer
                 #like it's not being destroyed properly
+                #
+                #Never mind, the connected_callback needs to be
+                #destroyed when the endpoint is disconnected
 
 def display_msg(endpoint, msg):
         global f
         global n
-	#print time.time() - startTime
 
         if(msg == str(numMessages - 1)):
                 f.write(str(n) + ' ')

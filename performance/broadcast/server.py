@@ -2,7 +2,7 @@ from chatroom import Server
 from manager import Manager
 import time
 import sys
-sys.path.append("C:/Users/perceptual/Waldo")
+sys.path.append("../..")
 from waldo.lib import Waldo
 
 HOSTNAME = '127.0.0.1'
@@ -17,7 +17,6 @@ numConnected = 0
 def connected(endpoint):
         '''
         connected_callback function when server connects
-        ... doesn't do anything right now
         '''
         global numConnected
         numConnected += 1
@@ -26,7 +25,7 @@ def connected(endpoint):
 Waldo.tcp_accept(Server, HOSTNAME, PORT, m, connected_callback = connected)
 print 'Server is running. Better go catch it!'
 
-while True:
+while numConnected < 17:
         if numConnected:
                 print 'Started'
                 startTime = time.time()

@@ -1,6 +1,6 @@
 from chatroom import Client
 import sys
-sys.path.append("C:/Users/perceptual/Waldo")
+sys.path.append("../..")
 from waldo.lib import Waldo
 import time
 

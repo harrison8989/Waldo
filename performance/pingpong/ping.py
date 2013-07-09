@@ -1,5 +1,5 @@
 import sys
-sys.path.append("C:/users/perceptual/waldo")
+sys.path.append("../..")
 from waldo.lib import Waldo
 from emitted import Ping
 import time
