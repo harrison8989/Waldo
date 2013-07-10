@@ -4,6 +4,7 @@ Endpoint Server;
 
 Sequences {
     SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
+    SeqActive: Server.reqActive -> Client.sendActive;
 }
 
 Sequence SeqSendMSG (Text msg) returns Text result
@@ -17,8 +18,23 @@ Sequence SeqSendMSG (Text msg) returns Text result
 
 }
 
+Sequence SeqActive () returns TrueFalse result
+{
+    TrueFalse temp = False;
+    Server.reqActive {
+	temp = False;
+    }
+
+    Client.sendActive {
+	temp = True;
+	result = temp;
+    }
+
+
+}
+
 Client
-{ 
+{
     Public Function send_msg(Text msg) {
         SeqSendMSG(msg);
     }
@@ -32,5 +48,9 @@ Server
 
     onCreate (Function (in: Text; returns: TrueFalse) init_display_msg_func) {
 	display_msg_func = init_display_msg_func;
+    }
+
+    Public Function getActive() returns TrueFalse{
+	return SeqActive();
     }
 }

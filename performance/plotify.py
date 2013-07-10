@@ -27,9 +27,6 @@ def plotify():
                     clientY.append(float(cData[0]) * float(cData[2]) / (float(cData[1])))
                     serverY.append(float(cData[0]) * float(sData[1]) / (float(cData[1])))
 
-    #font = {'size' : 16}
-    #plt.rc('font', **font)
-
     plt.plot(x, clientY, 'ro')
     plt.plot(x, serverY, 'bs')
     plt.title('Average Latency vs. Number of Clients (seconds/message)')

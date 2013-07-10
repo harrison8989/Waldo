@@ -9,7 +9,7 @@ numMessages = 1000
 
 f = open('clientLog', 'w')
 
-for i in range(1,17):
+for i in range(1,100000):
         client = Waldo.tcp_connect(Client, HOSTNAME, PORT)
 
         print 'Started'
@@ -21,7 +21,5 @@ for i in range(1,17):
 
         f.write(str(time.time() - startTime) + '\n')
         print "Finished: " + str(time.time() - startTime) + '\n'
-
-        client.stop()
 
 f.close()
