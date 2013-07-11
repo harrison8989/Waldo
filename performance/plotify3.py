@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import sys
 
 def plotify():
@@ -8,14 +9,16 @@ def plotify():
     Note that only the anaconda python version works. (cuz it has all
     the goodies and stuffz)
 
-    Requires only a "client" file.
+    Requires super raw data, where each client is listed out (
+    as opposed to aggregated raw data, which lists numbers of
+    clients out one by one)
     '''
     fileName = 'clientLog'
     if(len(sys.argv) >= 2):
         fileName = sys.argv[1]
 
     x = []
-    clientY = []
+    y = []
 
     with open(fileName, 'r') as clientLog:
 
@@ -23,10 +26,26 @@ def plotify():
             cData = clientData.split()
 
             if cData is not []:
-                x.append(cData[0])
-                clientY.append(float(cData[0]) * float(cData[2]) / (float(cData[1])))
 
-    plt.plot(x, clientY, 'rs')
+                datum = float(cData[0]) * float(cData[2]) / (float(cData[1]))
+                if(cData[0] not in x):
+                    x.append(float(cData[0])) #brings me back to my usaco dayz
+                    y.append([datum])
+                else:
+                    y[x.index(float(cData[0]))].append(datum)
+
+    processed = []
+    for yList in y:
+        thing = sum(yList) / len(yList)
+        processed.append(thing)
+
+    plt.plot(x, processed, 'rs')
+
+    xr = np.array(x)
+    yr = np.array(processed)
+    yerr = np.array([.1,.1,.1,.1,.1,.1,.1,.1,.1,.1])
+
+    plt.errorbar(xr, yr, yerr=yerr)
     plt.title('Average Latency vs. Number of Clients (seconds/message)')
     plt.xlabel('Number of Clients')
     plt.ylabel('Seconds per message')
@@ -37,10 +56,10 @@ def plotify():
     plt.show()
     plt.clf()
 
-    for i in range(len(clientY)):
-        clientY[i] = (i + 1) / clientY[i]
+    for i in range(len(processed)):
+        processed[i] = (i + 1) / processed[i]
 
-    plt.plot(x, clientY, 'rs')
+    plt.plot(x, processed, 'rs')
     plt.title('Average Throughput vs. Number of Clients (messages/second)')
     plt.xlabel('Number of Clients')
     plt.ylabel('Messages per second')

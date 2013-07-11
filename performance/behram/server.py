@@ -1,5 +1,6 @@
+#!/usr/bin/env python
+
 from emitted import Server
-import subprocess
 import time
 import sys
 sys.path.append("../../")
@@ -10,30 +11,23 @@ PORT = 9028
 SLEEPTIME = .001
 numMessages = 1000
 startTime = 0
-timeout = 10
-numKilled = 0
 
-if(len(sys.argv) >= 2):
-        timeOut = sys.argv[1]
-
-f = open('clientLog', 'w')
-f.close()
 f = open('serverLog', 'w')
 n = 1
 
 def connected(endpoint):
-        global timeout
-        global numKilled
         print 'Started'
         startTime = time.time()
+        keepGoing = True
         counter = 0
-        while True:
+        while keepGoing:
                 endpoint.service_signal()
                 counter += 1
                 if counter % 1000 == 999:
-                        if time.time() - startTime > timeout:
-                                numKilled += 1
+                        if time.time() - startTime > 10:
                                 endpoint.stop()
+                                break
+                                #break
                                 #todo:
                                 #have the client only send new messages after
                                 #this time has been finished (to prevent
@@ -45,6 +39,7 @@ def connected(endpoint):
                 #
                 #Never mind, the connected_callback needs to be
                 #destroyed when the endpoint is disconnected
+
 
 def display_msg(endpoint, msg):
         global f
@@ -61,12 +56,7 @@ def display_msg(endpoint, msg):
 Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, connected_callback = connected)
 
 print 'Server is up and running.'
-#while True:
-#	pass
-for i in range(1, 3):
-        for k in range(0, i):
-                subprocess.Popen("python client.py " + str(i))
+time.sleep(15)
 
-        while(numKilled < i):
-                time.sleep(5)
-        numKilled = 0
+# while True:
+# 	pass
