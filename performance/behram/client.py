@@ -29,7 +29,4 @@ for i in range(1,100000):
         f.write(str(time.time() - startTime) + '\n')
         print "Finished: " + str(time.time() - startTime) + '\n'
 
-        #if stop_except:
-        #        break
-        
 f.close()

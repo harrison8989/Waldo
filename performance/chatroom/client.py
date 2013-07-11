@@ -26,7 +26,6 @@ f = open('clientLog', 'a')
 numClients = 0
 if(len(sys.argv) >= 2):
         numClients = sys.argv[1]
-        print numClients
 
 f.write(str(numClients) + ' ' + str(numMessages) + ' ' + str(totalTime) + '\n')
 
