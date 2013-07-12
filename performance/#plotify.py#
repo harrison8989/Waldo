@@ -41,6 +41,7 @@ def plotify():
 
     for i in range(len(clientY)):
         clientY[i] = (i + 1) / clientY[i]
+        y
 
     for i in range(len(serverY)):
         serverY[i] = (i + 1) / serverY[i]

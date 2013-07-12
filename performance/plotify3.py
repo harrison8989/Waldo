@@ -29,26 +29,29 @@ def plotify():
 
                 datum = int(cData[0]) * float(cData[2]) / (float(cData[1]))
                 if(int(cData[0]) not in x):
-                    x.append(int(cData[0])) #brings me back to my usaco dayz
+                    x.append(int(cData[0])) #brings me back to my usaco days
                     y.append([datum])
                 else:
                     y[x.index(int(cData[0]))].append(datum)
 
     processed = []
+    yerr = []
     for yList in y:
         thing = sum(yList) / len(yList)
         processed.append(thing)
+        yerr.append(np.std(yList) * 1.95996 / np.sqrt(len(yList)))
+    print yerr
+    #standard error: stdev * invNorm(.975) / sqrt(n)
+    #if we only have one value, it's not needed... or is it....
+    #wait dude one value -> 0 standard deviation
 
     plt.plot(x, processed, 'rs')
     berp = np.std(processed)
 
     xr = np.array(x)
     yr = np.array(processed)
-    yerr = np.array([.1,.1,.1,.1])
-    #standard error: stdev * invNorm(.975) / sqrt(n)
-    #if we only have one value, it's not needed... or is it....
 
-    plt.errorbar(xr, yr, yerr=yerr)
+    plt.errorbar(xr, yr, yerr=yerr, xerr=0, fmt = 'ro')
     plt.title('Average Latency vs. Number of Clients (seconds/message)')
     plt.xlabel('Number of Clients')
     plt.ylabel('Seconds per message')

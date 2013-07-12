@@ -46,6 +46,7 @@ def connected(endpoint):
                 endpoint.service_signal()
                 counter += 1
 
+
                 if counter % COUNTERREFRESH == 0:
                         if time.time() - startTime > numClients * timeout:
                                 numKilled += 1
