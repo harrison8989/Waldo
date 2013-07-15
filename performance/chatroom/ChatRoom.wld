@@ -4,37 +4,29 @@ Endpoint Server;
 
 Sequences {
     SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
-    SeqActive: Server.reqActive -> Client.sendActive;
 }
 
 Sequence SeqSendMSG (Text msg) returns Text result
 {
+    /**Sends a message.
+       Very simple.
+
+     */
     Client.sendMSG {
     }
 
     Server.receiveMSG {
-	signal(display_msg_func, msg);
+        signal(display_msg_func, msg);
     }
-
-}
-
-Sequence SeqActive () returns TrueFalse result
-{
-    TrueFalse temp = False;
-    Server.reqActive {
-	temp = False;
-    }
-
-    Client.sendActive {
-	temp = True;
-	result = temp;
-    }
-
 
 }
 
 Client
 {
+    /**Spawned indefinitely.
+       The only function is to send messages to the server.
+
+     */
     Public Function send_msg(Text msg) {
         SeqSendMSG(msg);
     }
@@ -43,14 +35,13 @@ Client
 
 Server
 {
+    /**Spawned once.
+       The only function is to receive messages sent from clients.
 
+     */
     Function (in: Text; returns: TrueFalse) display_msg_func;
 
     onCreate (Function (in: Text; returns: TrueFalse) init_display_msg_func) {
 	display_msg_func = init_display_msg_func;
-    }
-
-    Public Function getActive() returns TrueFalse{
-	return SeqActive();
     }
 }

@@ -38,6 +38,7 @@ def connected(endpoint):
         global timeout
         global numKilled
         global numClients
+        global startTime
         counter = 0
         startTime = time.time()
 
@@ -49,7 +50,6 @@ def connected(endpoint):
                 if counter % COUNTERREFRESH == 0:
                         if time.time() - startTime > numClients * timeout:
                                 numKilled += 1
-                                endpoint.stop()
                                 break
                                 #todo:
                                 #have the client only send new messages after
@@ -70,6 +70,7 @@ def display_msg(endpoint, msg):
         '''
         global f
         global n
+        global startTime
 
         if(msg == str(numMessages - 1)):
                 f.write(str(n) + ' ')
@@ -82,10 +83,11 @@ Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, connected_callback = conne
 
 print 'Server is up and running.'
 
-for i in range(1, 17):
+for i in range(16, 17):
         numClients += 1
         for k in range(0, i):
                 subprocess.Popen("python client.py " + str(i))
+                time.sleep(.01)
 
         #wait for endpoints to die...
         while(numKilled < i):
