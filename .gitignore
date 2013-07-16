@@ -1,6 +1,7 @@
-*.pyc
 emitted.py
 log.txt
 parser.out
 parsetab.py
+*.png
+*.pyc
 *.pyo

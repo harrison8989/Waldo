@@ -1,0 +1,11 @@
+Chatroom
+Endpoint Client;
+Endpoint Server;
+
+Client
+{
+}
+
+Server
+{
+}

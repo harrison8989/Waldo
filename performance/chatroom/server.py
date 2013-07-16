@@ -19,9 +19,9 @@ numClients = 0
 #while still leaving multiprocessing features.
 
 if(len(sys.argv) >= 2):
-        timeOut = sys.argv[1]
-
-rewrite = raw_input('Overwrite logs? (Input y/n): ')
+        rewrite = sys.argv[1]
+else:
+        rewrite = raw_input('Overwrite logs? (Input y/n): ')
 if(rewrite in ['y', 'Y']):
         f = open('clientLog', 'w')
         f.close()
@@ -83,11 +83,10 @@ Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, connected_callback = conne
 
 print 'Server is up and running.'
 
-for i in range(16, 17):
-        numClients += 1
+for i in range(1, 1):
+        numClients  = i
         for k in range(0, i):
                 subprocess.Popen("python client.py " + str(i))
-                time.sleep(.01)
 
         #wait for endpoints to die...
         while(numKilled < i):

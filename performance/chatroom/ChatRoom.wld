@@ -8,10 +8,6 @@ Sequences {
 
 Sequence SeqSendMSG (Text msg) returns Text result
 {
-    /**Sends a message.
-       Very simple.
-
-     */
     Client.sendMSG {
     }
 
@@ -23,10 +19,6 @@ Sequence SeqSendMSG (Text msg) returns Text result
 
 Client
 {
-    /**Spawned indefinitely.
-       The only function is to send messages to the server.
-
-     */
     Public Function send_msg(Text msg) {
         SeqSendMSG(msg);
     }
@@ -35,10 +27,6 @@ Client
 
 Server
 {
-    /**Spawned once.
-       The only function is to receive messages sent from clients.
-
-     */
     Function (in: Text; returns: TrueFalse) display_msg_func;
 
     onCreate (Function (in: Text; returns: TrueFalse) init_display_msg_func) {

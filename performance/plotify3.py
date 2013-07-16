@@ -59,7 +59,6 @@ def plotify():
     plt.gca().set_ylim(bottom=0)
     plt.gcf().set_size_inches(8,4)
     plt.savefig('latency.png', dpi=200)
-    plt.show()
     plt.clf()
 
     for i in range(len(processed)):
@@ -73,7 +72,6 @@ def plotify():
     plt.gca().set_ylim(bottom=0)
     plt.gcf().set_size_inches(8,4)
     plt.savefig('throughput.png', dpi=200)
-    plt.show()
     plt.clf()
 
 
