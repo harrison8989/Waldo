@@ -1,0 +1,1 @@
+each client sends 1000 messages (now from its own process!)

@@ -1,0 +1,1 @@
+Send 1000 messages with the string length gradually increasing (factor of 10)
