@@ -1,0 +1,2 @@
+Testing how long it takes to send_msg (without initiating sequence)
+after a while they are not synchronized, which is quite odd -- there seems to be a bit of a delay

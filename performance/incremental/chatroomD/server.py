@@ -11,7 +11,7 @@ SLEEPTIME = .001
 COUNTERREFRESH = 10000
 numMessages = 1000
 startTime = 0
-timeout = 10
+timeout = 5
 numKilled = 0
 numClients = 0
 
@@ -30,7 +30,6 @@ else:
         f = open('serverLog', 'a')
 n = 1
 
-
 def connected(endpoint):
         '''
         Called when a client connects to the server.
@@ -44,7 +43,6 @@ def connected(endpoint):
 
 
         while True:
-                endpoint.service_signal()
                 counter += 1
 
                 if counter % COUNTERREFRESH == 0:
@@ -63,23 +61,7 @@ def connected(endpoint):
                 #Never mind, the connected_callback needs to be
                 #destroyed when the endpoint is disconnected
 
-def display_msg(endpoint, msg):
-        '''
-        Called when a client sends a message to the server.
-        Misleading function name: display_msg doesn't actually display a msg.
-        '''
-        global f
-        global n
-        global startTime
-
-        if(msg == str(numMessages - 1)):
-                f.write(str(n) + ' ')
-                n += 1
-                f.write(str(time.time() - startTime) + '\n')
-
-
-
-Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, connected_callback = connected)
+Waldo.tcp_accept(Server, HOSTNAME, PORT, connected_callback = connected)
 
 print 'Server is up and running.'
 

@@ -11,7 +11,7 @@ SLEEPTIME = .001
 COUNTERREFRESH = 10000
 numMessages = 1000
 startTime = 0
-timeout = 10
+timeout = 2
 numKilled = 0
 numClients = 0
 
@@ -43,12 +43,11 @@ def connected(endpoint):
         startTime = time.time()
 
 
-        while True:
-                endpoint.service_signal()
+        while True: 
                 counter += 1
 
                 if counter % COUNTERREFRESH == 0:
-                        if time.time() - startTime > numClients * timeout:
+                        if time.time() - startTime > timeout:
                                 numKilled += 1
                                 break
                                 #todo:
@@ -90,6 +89,6 @@ for i in range(1, 17):
 
         #wait for endpoints to die...
         while(numKilled < numClients):
-                time.sleep(5)
+                time.sleep(1)
 
         numKilled = 0

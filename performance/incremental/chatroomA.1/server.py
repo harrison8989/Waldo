@@ -11,7 +11,7 @@ SLEEPTIME = .001
 COUNTERREFRESH = 10000
 numMessages = 1000
 startTime = 0
-timeout = 10
+timeout = 1
 numKilled = 0
 numClients = 0
 
@@ -30,7 +30,6 @@ else:
         f = open('serverLog', 'a')
 n = 1
 
-
 def connected(endpoint):
         '''
         Called when a client connects to the server.
@@ -44,7 +43,6 @@ def connected(endpoint):
 
 
         while True:
-                endpoint.service_signal()
                 counter += 1
 
                 if counter % COUNTERREFRESH == 0:
@@ -90,6 +88,6 @@ for i in range(1, 17):
 
         #wait for endpoints to die...
         while(numKilled < numClients):
-                time.sleep(5)
+                time.sleep(1)
 
         numKilled = 0

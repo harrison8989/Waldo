@@ -30,7 +30,6 @@ else:
         f = open('serverLog', 'a')
 n = 1
 
-
 def connected(endpoint):
         '''
         Called when a client connects to the server.
@@ -44,9 +43,7 @@ def connected(endpoint):
 
 
         while True:
-                endpoint.service_signal()
                 counter += 1
-
                 if counter % COUNTERREFRESH == 0:
                         if time.time() - startTime > numClients * timeout:
                                 numKilled += 1
@@ -76,8 +73,6 @@ def display_msg(endpoint, msg):
                 f.write(str(n) + ' ')
                 n += 1
                 f.write(str(time.time() - startTime) + '\n')
-
-
 
 Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, connected_callback = connected)
 

@@ -1,0 +1,2 @@
+Almost nothing
+Intention: to test how long it takes for server to start, client to load
