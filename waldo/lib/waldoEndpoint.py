@@ -1,9 +1,9 @@
 import util
 import waldoEndpointServiceThread
 import waldoActiveEventMap
+import waldoCallResults
 from util import Queue
 import threading
-
 from waldo.lib.proto_compiled.generalMessage_pb2 import GeneralMessage
 
 
@@ -48,8 +48,6 @@ class _Endpoint(object):
         # variables.
         self._global_var_store = global_var_store
 
-        # self._endpoint_service_thread = waldoEndpointServiceThread._EndpointServiceThread(self)
-        # self._endpoint_service_thread.start()
 
         self._endpoint_service_thread_pool = (
             waldoEndpointServiceThread._EndpointServiceThreadPool(
@@ -81,6 +79,24 @@ class _Endpoint(object):
 
         self._conn_obj.register_endpoint(self)
 
+        self._stop_mutex = threading.Lock()
+        # has stop been called locally, on the partner, and have we
+        # performed cleanup, respectively
+        self._stop_called = False
+        self._partner_stop_called = False
+        self._stop_complete = False
+        
+        self._stop_blocking_queues = []
+
+        # holds callbacks to call when stop is complete
+        self._stop_listener_id_assigner = 0
+        self._stop_listeners = {}
+
+    def _stop_lock(self):
+        self._stop_mutex.acquire()
+        
+    def _stop_unlock(self):
+        self._stop_mutex.release()
 
     def _ready_waiting_list_lock(self,additional):
         self._ready_waiting_list_mutex.acquire()
@@ -240,6 +256,10 @@ class _Endpoint(object):
             self._endpoint_service_thread_pool.receive_partner_notify_of_peered_modified_msg(
                 general_msg.notify_of_peered_modified)
 
+        elif general_msg.HasField('stop'):
+            t = threading.Thread(target= self._handle_partner_stop_msg,args=(general_msg.stop,))
+            t.start()
+            
         elif general_msg.HasField('first_phase_result'):
             if general_msg.first_phase_result.successful:
                 self._receive_first_phase_commit_successful(
@@ -425,6 +445,15 @@ class _Endpoint(object):
         Non-blocking.  Requests the endpoint_service_thread to perform
         the endpoint function call listed as func_name.
         '''
+        self._stop_lock()
+        # check if should short-circuit processing 
+        if self._stop_called:
+            result_queue.push(
+                waldoCallResults._StopAlreadyCalledEndpointCallResult())
+            self._stop_unlock()
+            return
+        self._stop_unlock()
+
         self._endpoint_service_thread_pool.receive_endpoint_call(
             endpoint_making_call,event_uuid,func_name,result_queue,*args)
 
@@ -567,8 +596,6 @@ class _Endpoint(object):
         notify_of_peered_modified.reply_with_uuid.data = reply_with_uuid
         self._conn_obj.write(general_message.SerializeToString(),self)
 
-        
-        
     def _notify_partner_peered_before_return_response(
         self,event_uuid,reply_to_uuid,invalidated):
         '''
@@ -614,3 +641,166 @@ class _Endpoint(object):
         general_message.message_type = GeneralMessage.PARTNER_BACKOUT_COMMIT_REQUEST
         general_message.backout_commit_request.event_uuid.data = active_event.uuid
         self._conn_obj.write(general_message.SerializeToString(),self)
+
+    def _notify_partner_stop(self):
+        general_message = GeneralMessage()
+        general_message.message_type = GeneralMessage.PARTNER_STOP
+        general_message.stop.dummy = False
+
+        self._conn_obj.write_stop(general_message.SerializeToString(),self)
+
+        
+    def add_stop_listener(self, to_exec_on_stop):
+        '''
+        @param {callable} to_exec_on_stop --- When this endpoint
+        stops, we execute to_exec_on_stop and any other
+        stop listeners that were waiting.
+
+        @returns {int or None} --- int id should be passed back inot
+        remove_stop_listener to remove associated stop
+        listener.
+        '''
+        self._stop_lock()
+        if self._stop_called:
+            self._stop_unlock()
+            return None
+
+        stop_id = self._stop_listener_id_assigner
+        self._stop_listener_id_assigner += 1
+        self._stop_listeners[stop_id] = to_exec_on_stop
+        self._stop_unlock()
+
+        return stop_id
+        
+    def remove_stop_listener(self, stop_id):
+        '''
+        int returned from add_stop_listener
+        '''
+        self._stop_lock()
+        self._stop_listeners.pop(stop_id,None)
+        self._stop_unlock()
+
+        
+
+    def stop(self,_skip_partner=False):
+        '''
+        Called from python or called when partner requests stop
+        '''
+        self._stop_lock()
+        if self._stop_complete:
+            # means that user called stop after we had already
+            # stopped.  Do nothing
+            self._stop_unlock()
+            return
+
+        # call to stop from external code should block until all
+        # queues have unblocked
+        blocking_queue = util.Queue.Queue()
+
+        self._stop_blocking_queues.append(blocking_queue)
+
+        stop_already_called = self._stop_called
+        self._stop_called = True
+
+        # if we have stopped and our partner has stopped, then request callback
+        request_callback = self._partner_stop_called and self._stop_called
+            
+        self._stop_unlock()
+
+        # act event map filters duplicate stop calls automatically
+        self._act_event_map.initiate_stop(_skip_partner)
+
+        if not stop_already_called:
+            # we do not want to send multiple stop messages to our
+            # partner.  just one.  this check ensures that we don't
+            # infinitely send messages back and forth.
+            self._notify_partner_stop()
+            
+        # 4 from above as well
+        if request_callback:
+            self._act_event_map.callback_when_stopped(self._stop_complete_cb)
+
+        # blocking wait until ready to shut down.
+        blocking_queue.get()
+
+            
+    def _stop_complete_cb(self):
+        '''
+        Passed in as callback arugment to active event map, which calls it.
+        
+        When this is executed:
+           1) Stop was called on this side
+           
+           2) Stop was called on the other side
+           
+           3) There are no longer any running events in active event
+              map
+
+        Close the connection between both sides.  Unblock the stop call.
+        '''
+        # FIXME: chance of getting deadlock if one of the stop
+        # listeners tries to remove itself.
+        self._stop_lock()
+        if self._stop_complete:
+            self._stop_unlock()
+            return
+        
+        self._stop_complete = True
+        self._stop_unlock()
+
+        for stop_listener in self._stop_listeners.values():
+            stop_listener()
+        self._conn_obj.close()
+            
+        # flush stop queues so that all stop calls unblock.  Note:
+        # does not matter what value put into the queues.
+        for q in self._stop_blocking_queues:
+            q.put(None)
+
+
+    def _handle_partner_stop_msg(self,msg):
+        '''
+        @param {PartnerStop message object} --- Has a single boolean
+        field, which is meaningless.
+                
+        Received a stop message from partner:
+          1) Label partner stop as having been called
+          2) Initiate stop locally
+          3) If have already called stop myself then tell active event
+             map we're ready for a shutdown when it is
+        '''
+        self._stop_lock()
+
+        # 2 from above
+        self._partner_stop_called = True
+
+        # 3 from above
+        t = threading.Thread(target = self.stop, args=(True,))
+        t.start()
+
+        # 4 from above
+        request_callback = self._partner_stop_called and self._stop_called
+        
+        self._stop_unlock()
+
+        # 4 from above as well
+        if request_callback:
+            self._act_event_map.callback_when_stopped(self._stop_complete_cb)
+
+    # Builtin Endpoint Functions
+    def _endpoint_func_call_prefix__waldo__id(self, *args):
+        '''
+        Builtin id method. Returns the endpoint's uuid.
+
+        For use within Waldo code.
+        '''
+        return self._uuid
+
+    def id(self):
+        '''
+        Builtin id method. Returns the endpoint's uuid.
+
+        For use on endpoints within Python code.
+        '''
+        return self._uuid
+        

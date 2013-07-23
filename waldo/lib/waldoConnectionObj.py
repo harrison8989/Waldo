@@ -1,9 +1,11 @@
 import util
 from util import Queue
 import threading
+import thread
 import socket
 import struct
 
+ACCEPTING_TIMEOUT = 1
 
 class _WaldoConnectionObject(object):
 
@@ -16,7 +18,15 @@ class _WaldoConnectionObject(object):
         util.logger_assert(
             'Error write in _WaldoConnectionObject is pure ' +
             'virtual.')
+        
+    def write_stop(self,string_to_write,endpoint_writing):
+        util.logger_assert(
+            'Error write_stop in _WaldoConnectionObject is pure virtual')
 
+    def close(self):
+        pass
+
+        
 class _WaldoSingleSideConnectionObject(_WaldoConnectionObject):
 
     def __init__(self):
@@ -29,6 +39,10 @@ class _WaldoSingleSideConnectionObject(_WaldoConnectionObject):
         # other side's onCreate has completed
         self.endpoint._receive_partner_ready(None)
 
+    def write_stop(self,string_to_write,endpoint_writing):
+        # write same message back to self
+        self.endpoint._receive_msg_from_partner(string_to_write)
+        
     def write(self,to_write,endpoint_writing):
         pass
 
@@ -58,7 +72,10 @@ class _WaldoSameHostConnectionObject(_WaldoConnectionObject,threading.Thread):
             self.start()
 
         self.endpoint_mutex.release()
-            
+
+    def write_stop(self,string_to_write,endpoint_writing):
+        # write same message back to self
+        self.queue.put( ( string_to_write , endpoint_writing ))
 
     def write(self,msg,endpoint):
         self.queue.put((msg,endpoint))
@@ -112,11 +129,30 @@ class _WaldoTCPConnectionObj(_WaldoConnectionObject):
         listening_thread.start()
 
     def _start_listening_loop(self):
-        while 1:
-            data = self.sock.recv(1024)
-            self.received_data += data
-            self._decapsulate_msg_and_dispatch()
+        while True:
+            try:
+                data = self.sock.recv(1024)
+                if not data:
+                    # socket closed: note: may want to catch this error to
+                    # ensure it happened because close had been called
+                    break
 
+                self.received_data += data
+                self._decapsulate_msg_and_dispatch()
+            except:
+                # FIXME:
+                
+                # also catching a bad file descriptor error on server
+                # after close connection.  Unclear why that wasn't
+                # caught in the receive loop under if not data???
+
+                # FIXME: may also want to check to ensure that the
+                # error was raised after close was called so that we
+                # know whether to throw separate partition error.
+                break
+        
+
+        
 
     @staticmethod
     def _encapsulate_msg_str(str_to_escape):
@@ -166,7 +202,11 @@ class _WaldoTCPConnectionObj(_WaldoConnectionObject):
 
         return msg, rest_of_msg
         
-
+    def close(self):
+        '''
+        Actually close the socket
+        '''
+        self.sock.close()
         
     def _decapsulate_msg_and_dispatch(self):
         '''
@@ -190,8 +230,12 @@ class _WaldoTCPConnectionObj(_WaldoConnectionObject):
         # recurse in case received more than two messages worth of
         # information simultaneously.
         self._decapsulate_msg_and_dispatch()
-        
 
+    def write_stop(self,string_to_write,endpoint_writing):
+        # write same message back to self
+        self.write(string_to_write,endpoint_writing)
+        
+        
     def write(self,msg_str_to_write,sender_endpoint_obj):
         '''
         @param {String} msg_str_to_write
@@ -301,20 +345,22 @@ class _TCPAcceptThread(threading.Thread):
 
         
     def run(self):
+        
         sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         # turn off Nagle's
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
         # we do not want to listen for the connection forever.  every
-        # 1s, if we do not get a connection check if we should stop listening
-        sock.settimeout(1)
+        # ACCEPTING_TIMEOUT seconds, if we do not get a connection check if we 
+        # should stop listening
+        sock.settimeout(ACCEPTING_TIMEOUT)
 
         try: 
           sock.bind((self.host_listen_on, self.port_listen_on))
         except socket.error, ex:
           print ex[1] # print error message from socket error
 
-        sock.listen(1)
+        sock.listen(5)
         self.synchronization_listening_queue.put(True)
         while True:
 
@@ -322,13 +368,12 @@ class _TCPAcceptThread(threading.Thread):
 
                 conn, addr = sock.accept()
                 tcp_conn_obj = _WaldoTCPConnectionObj(None,None,conn)
-
                 created_endpoint = self.endpoint_constructor(
                     self.waldo_classes,self.host_uuid,tcp_conn_obj,*self.args)
-
+					
                 if self.cb != None:
-                    self.cb(created_endpoint)
-
+                    thread.start_new_thread(self.cb, (created_endpoint,))
+				
                 if self.stoppable.is_stopped():
                     break
                     

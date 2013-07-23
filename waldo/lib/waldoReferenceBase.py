@@ -3,9 +3,10 @@ import util
 from abc import abstractmethod
 import waldoNotificationMap
 from waldo.lib.proto_compiled.varStoreDeltas_pb2 import VarStoreDeltas
+from  waldoObj import WaldoObj
 
 
-class _ReferenceBase(object):
+class _ReferenceBase(WaldoObj):
     '''
     Whenever we have a reference, ie a variable, map, list, struct, it
     derives from this.
@@ -138,8 +139,6 @@ class _ReferenceBase(object):
         @returns {bool} --- True if some subelement was modified,
         False otherwise.
         '''
-
-        
         self._lock()
         self._add_invalid_listener(invalid_listener)
         dirty_element = self._dirty_map[invalid_listener.uuid]
@@ -566,7 +565,7 @@ class _DirtyMapElement(object):
             return True
 
         # check if sub-object was modified
-        if isinstance(self.val,_ReferenceBase):
+        if isinstance(self.val,WaldoObj):
             if self.val.modified(invalidation_listener):
                 return True
 
@@ -582,7 +581,7 @@ class _DirtyMapElement(object):
             for key in keys:
                 item = self.val[key]
 
-                if isinstance(self.val,_ReferenceBase):
+                if isinstance(self.val,WaldoObj):
                     if item.modified(invalidation_listener):
                         return True
                 else:

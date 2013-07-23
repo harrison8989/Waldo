@@ -183,7 +183,11 @@ while True:  # FIXME: currently using infinite retry
     # return them....if it were false, might just get back refrences
     # to Waldo variables, and de-waldo-ifying them outside of the
     # transaction might return over-written/inconsistent values.
-    _to_return = self.%s(_root_event,_ctx %s,[])
+    try:
+        _to_return = self.%s(_root_event,_ctx %s,[])
+    except %s:
+        pass
+
     # try committing root event
     _root_event.request_commit()
     _commit_resp = _root_event.event_complete_queue.get()
@@ -200,6 +204,7 @@ while True:  # FIXME: currently using infinite retry
            emit_utils.library_transform('VariableStore'),
            lib_util.internal_oncreate_func_call_name('onCreate'),
            comma_sep_arg_names,
+           emit_utils.library_transform('BackoutException'),
            emit_utils.library_transform('CompleteRootCallResult'))
 
     else:
@@ -289,11 +294,11 @@ def create_wvariables_array(
         if TypeCheck.templateUtil.is_struct(decl_node.type):
             var_declaration,var_name = emit_statement.struct_rhs_declaration(
                 decl_node,host_uuid_var_name,peered,
-                endpoint_name,ast_root,fdep_dict,emit_ctx)
+                endpoint_name,ast_root,fdep_dict,emit_ctx,True)
         else:
             var_declaration,var_name = emit_statement.non_struct_rhs_declaration(
                 decl_node,host_uuid_var_name,peered,
-                endpoint_name,ast_root,fdep_dict,emit_ctx)
+                endpoint_name,ast_root,fdep_dict,emit_ctx,True)
 
         wvar_load_text += '''
 self._global_var_store.add_var(
@@ -507,9 +512,12 @@ def convert_args_helper (func_decl_arglist_node,sequence_local,is_endpoint_call)
         
         if not sequence_local:
             force_copy = 'True'
+
+            multi_threaded= 'False'
             
             if TypeCheck.templateUtil.is_external(func_decl_arg_node.type):
                 force_copy = 'False'
+                multi_threaded = 'True'
             
             if ((not is_endpoint_call) and
                 emit_utils.is_reference_type(func_decl_arg_node)):
@@ -527,12 +535,14 @@ def convert_args_helper (func_decl_arglist_node,sequence_local,is_endpoint_call)
                 converted_args_string += (
                     arg_name + ' = ' +
                     '_context.func_turn_into_waldo_var(' + arg_name +
-                    ',%s,_active_event,self._host_uuid,False,%s)\n' % (force_copy,ext_args_array_txt))
+                    ',%s,_active_event,self._host_uuid,False,%s,%s)\n' %
+                    (force_copy,ext_args_array_txt,multi_threaded))
+
             else:
                 converted_args_string += (
                     arg_name + ' = ' +
                     '_context.turn_into_waldo_var_if_was_var(' + arg_name +
-                    ',%s,_active_event,self._host_uuid,False)\n' % force_copy)
+                    ',%s,_active_event,self._host_uuid,False,%s)\n' % (force_copy,multi_threaded))
 
         else:
 
@@ -622,19 +632,30 @@ while True:  # FIXME: currently using infinite retry
     # return them....if it were false, might just get back refrences
     # to Waldo variables, and de-waldo-ifying them outside of the
     # transaction might return over-written/inconsistent values.
-    _to_return = self.%s(_root_event,_ctx %s,%s)
+    try:
+        _to_return = self.%s(_root_event,_ctx %s,%s)
+    except %s:
+        pass
+
     # try committing root event
     _root_event.request_commit()
     _commit_resp = _root_event.event_complete_queue.get()
     if isinstance(_commit_resp,%s):
         # means it isn't a backout message: we're done
         return _to_return
+    elif isinstance(_commit_resp,%s):
+        raise %s()
+
 ''' % (emit_utils.library_transform('ExecutingEventContext'),
        emit_utils.library_transform('VariableStore'),
        internal_method_name,
        comma_sep_arg_names,
        str(list_return_external_positions),
-       emit_utils.library_transform('CompleteRootCallResult'))
+       emit_utils.library_transform('BackoutException'),
+       emit_utils.library_transform('CompleteRootCallResult'),
+       emit_utils.library_transform('StopRootCallResult'),
+       emit_utils.library_transform('StoppedException')
+       )
 
     return public_header + emit_utils.indent_str(public_body)
 
@@ -830,7 +851,7 @@ if %s != None:
     next_sequence_txt += '''
 
     if isinstance(_queue_elem,%s):
-        # back everything out
+        # back everything out: 
         raise %s()
 
     _context.set_to_reply_with(_queue_elem.reply_with_msg_field)

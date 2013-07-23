@@ -236,6 +236,30 @@ class _ActiveEvent(_InvalidationListener):
 
         self._state = _ActiveEvent.STATE_COMPLETED_COMMIT
 
+    def stop(self,skip_partner):
+        '''
+        If not in first or second phase of commit, then backout.
+        '''
+        self._lock()
+
+        if not self.in_running_phase():
+            # do not stop an event unless it is in the running phase.
+            # (if it's midway through 2-phase commit, then if we stop
+            # ourselves, we could screw up the entire commit on all
+            # committers.
+            self._unlock()
+            return
+
+        self.forward_backout_request_and_backout_self(
+            skip_partner,
+            # already_backed_out,
+            False,
+            # stop message
+            True )
+        
+        self._unlock()
+
+        
         
     def must_check_partner(self):
         '''
@@ -539,7 +563,7 @@ class _ActiveEvent(_InvalidationListener):
         return endpoint_call_requested
 
     def forward_backout_request_and_backout_self(
-        self,skip_partner=False,already_backed_out=False):
+        self,skip_partner=False,already_backed_out=False,stop_request=False):
         '''
         @param {bool} skip_partner --- @see forward_commit_request
 
@@ -547,6 +571,9 @@ class _ActiveEvent(_InvalidationListener):
         out the commit through commit manager, and is calling this
         function primarily to forward the backout message.  No need to
         do so again inside of function.
+
+        @param {bool} stop_request --- True if this backout is a
+        product of a stop request.  False otherwise.
         
         When this is called, we want to disable all further additions
         to self.subscribed_to and self.message_sent.  (Ie, after we
@@ -555,8 +582,8 @@ class _ActiveEvent(_InvalidationListener):
         work for this event.)
         '''
         self.set_breakout()
-
         self._lock()
+
         if self.in_request_backout_phase():
             self._unlock()
             return
@@ -564,11 +591,11 @@ class _ActiveEvent(_InvalidationListener):
         ##### remove event from active event map
         self.local_endpoint._act_event_map.remove_event_if_exists(
             self.uuid)
-
+        
         if not already_backed_out:
             self.backout_commit()
-
         self.set_request_backout_phase()
+        
         for endpoint_uuid in self.subscribed_to.keys():
             subscribed_to_element = self.subscribed_to[endpoint_uuid]
 
@@ -583,13 +610,21 @@ class _ActiveEvent(_InvalidationListener):
             # waiting and not to perform any more operations.
             res_queues_array = subscribed_to_element.result_queues
             for res_queue in res_queues_array:
-                res_queue.put(
-                    waldoCallResults._BackoutBeforeEndpointCallResult())
+                if stop_request:
+                    queue_feeder = waldoCallResults._StopAlreadyCalledEndpointCallResult()
+                else:
+                    queue_feeder = waldoCallResults._BackoutBeforeEndpointCallResult()
+
+                res_queue.put(queue_feeder)
 
         for reply_with_uuid in self.message_listening_queues_map.keys():
             message_listening_queue = self.message_listening_queues_map[reply_with_uuid]
-            message_listening_queue.put(
-                waldoCallResults._BackoutBeforeReceiveMessageResult())
+            if stop_request:
+                queue_feeder =  waldoCallResults._StopRootCallResult()
+            else:
+                queue_feeder = waldoCallResults._BackoutBeforeReceiveMessageResult()
+            message_listening_queue.put(queue_feeder)
+
 
         if ((not skip_partner) and self.must_check_partner()):
             self.local_endpoint._forward_backout_request_partner(self)
@@ -927,11 +962,14 @@ class _ActiveEvent(_InvalidationListener):
         A acquires in order alpha, beta, gamma
         B acquires in order alpha, beta, gamma
         '''
-        sorted_touched_obj_ids = sorted(list(self.objs_touched.keys()))
-
+        sorted_touched_obj_ids = (
+            sorted(list(self.priority_touched_objs.keys() ) + sorted(list(self.objs_touched.keys()))))
         self.holding_locks_on = []
         for obj_id in sorted_touched_obj_ids:
-            touched_obj = self.objs_touched[obj_id]
+
+            touched_obj = self.objs_touched.get(obj_id,None)
+            if touched_obj is None:
+                touched_obj = self.priority_touched_objs[obj_id]
 
             obj_can_commit = None
 
@@ -970,7 +1008,9 @@ class _ActiveEvent(_InvalidationListener):
         '''
         self.set_breakout()
         for obj_id in self.holding_locks_on:
-            to_backout_obj = self.objs_touched[obj_id]
+            to_backout_obj = self.objs_touched.get(obj_id,None)
+            if to_backout_obj is None:
+                to_backout_obj = self.priority_touched_objs[obj_id]
             to_backout_obj.backout(self)
         self.holding_locks_on = []
 
@@ -980,6 +1020,9 @@ class _ActiveEvent(_InvalidationListener):
         Should only be called if hold_can_commit returned True.  Runs
         through all touched objects and completes their commits.
         '''
+        for touched_obj in self.priority_touched_objs.values():
+            touched_obj.complete_commit(self)
+        
         for touched_obj in self.objs_touched.values():
             touched_obj.complete_commit(self)
 
@@ -1075,11 +1118,19 @@ class RootActiveEvent(_ActiveEvent):
         self._unlock()
 
     def forward_backout_request_and_backout_self(
-        self,skip_partner=False,already_backed_out=False):
+        self,skip_partner=False,already_backed_out=False,stop_request=False):
+        
         # whenever we backout, we must also reschedule
         super(RootActiveEvent,self).forward_backout_request_and_backout_self(
             skip_partner,already_backed_out)
-        self.reschedule()
+
+        if stop_request:
+            # notify queue that we have stopped and are not processing
+            # any more
+            self.event_complete_queue.put(
+                waldoCallResults._StopRootCallResult())
+        else:
+            self.reschedule()
         
         
     def receive_successful_first_phase_commit_msg(
