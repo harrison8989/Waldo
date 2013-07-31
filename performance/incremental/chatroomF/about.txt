@@ -1,1 +1,2 @@
-added service_signalling (but no signaling)
+-Very similar to chatroomD
+-Added service_signalling (removing from queue) but not signalling (adding to the queue)

@@ -43,7 +43,7 @@ def connected(endpoint):
         startTime = time.time()
 
 
-        while True: 
+        while True:
                 counter += 1
 
                 if counter % COUNTERREFRESH == 0:
@@ -78,7 +78,7 @@ def display_msg(endpoint, msg):
 
 
 
-Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, connected_callback = connected)
+Waldo.tcp_accept(Server, HOSTNAME, PORT, connected_callback = connected)
 
 print 'Server is up and running.'
 

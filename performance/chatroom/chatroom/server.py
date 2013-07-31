@@ -11,7 +11,7 @@ SLEEPTIME = .001
 COUNTERREFRESH = 10000
 numMessages = 1000
 startTime = 0
-timeout = 10
+timeout = 5
 numKilled = 0
 numClients = 0
 
@@ -71,7 +71,6 @@ def display_msg(endpoint, msg):
         global f
         global n
         global startTime
-
         if(msg == str(numMessages - 1)):
                 f.write(str(n) + ' ')
                 n += 1
@@ -83,7 +82,7 @@ Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg, connected_callback = conne
 
 print 'Server is up and running.'
 
-for i in range(1, 17):
+for i in range(1, 2):
         numClients = i
         for k in range(0, i):
                 subprocess.Popen("python client.py " + str(i))

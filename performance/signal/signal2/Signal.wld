@@ -1,0 +1,28 @@
+Signal
+Endpoint Server;
+
+Server {
+    Text glob;
+
+    Function (in: Text; returns: Nothing) display_msg_func;
+    Function (in: Nothing; returns: Nothing) nothing_func;
+
+    onCreate(Function (in: Text, Number; returns: Nothing) init_display_msg_func,
+	     Function (in: Nothing; returns: Nothing) init_nothing_func) {
+	display_msg_func = init_display_msg_func;
+	nothing_func = init_nothing_func;
+    }
+
+    Public Function display_msg (Text msg, Number num) {
+	for(Number number in range(0,num)) {
+	    signal(display_msg_func, msg);
+	}
+
+    }
+
+    Public Function nothing() {
+	signal(nothing_func);
+    }
+
+
+}

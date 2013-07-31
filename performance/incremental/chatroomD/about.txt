@@ -1,1 +1,2 @@
-adding connected_callback (but no service_signalling...yet)
+-Very similar to chatroomC
+-Added connected_callback thread, which starts once a connection is created

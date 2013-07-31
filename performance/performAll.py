@@ -3,13 +3,16 @@ import subprocess
 import os
 import shutil
 
+#plotify2-5: only one client (but some variable changes over time)
+#plotify3: a lot of data that must be averaged, includes error bars
+
 dirs = {
-    'chatroom/chatroom':'plotify3.py',
-    'chatroom/chatroom1':'plotify2-5.py',
-    'chatroom/chatroom2':'plotify3.py'
+    'incremental/chatroomE.1':'plotify3.py'
 
 
 }
+
+secondaryDir = 'workTest'
 
 def main():
     '''
@@ -28,23 +31,27 @@ def main():
 
         print '---Writing and copying data...',
 
-        if not os.path.exists('test'):
+        if not os.path.exists(secondaryDir):
+            os.makedirs(secondaryDir)
 
-            os.makedirs('test')
-
+        os.chdir(secondaryDir)
         counter = 0
-        exists = os.path.exists('test/' + dir[:3] + str(counter))
+        exists = os.path.exists(dir[:3] + str(counter))
         while exists:
             counter += 1
-            exists = os.path.exists('test/' + dir[:3] + str(counter))
-        os.makedirs('test/' + dir[:3] + str(counter))
+            exists = os.path.exists(dir[:3] + str(counter))
+        os.makedirs(dir[:3] + str(counter))
 
-        shutil.copy('clientLog', 'test/' + dir[:3] + str(counter))
-        shutil.copy('serverLog', 'test/' + dir[:3] + str(counter))
+        shutil.copy('../clientLog', dir[:3] + str(counter))
+        shutil.copy('../serverLog', dir[:3] + str(counter))
 
-        os.chdir('test/' + dir[:3] + str(counter))
+        os.chdir(dir[:3] + str(counter))
         subprocess.call('python ' + initDir + '/' + dirs[dir])
         os.chdir(initDir)
+
+        #just to make sure - be sure to run pypy!
+
+        subprocess.call('taskkill /im python.exe /f')
 
         print 'Done!'
         print '\n===============================\n'

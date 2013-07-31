@@ -28,8 +28,8 @@ def plotify():
                 clientY.append(float(cData[2]) / (float(cData[1])))
 
     plt.plot(x, clientY, 'rs')
-    plt.title('Average Latency vs. Number of Clients (seconds/message)')
-    plt.xlabel('Number of Clients')
+    plt.title('Average Latency vs. A Variable (seconds/message)')
+    plt.xlabel('Variable')
     plt.ylabel('Seconds per message')
     plt.gca().set_xlim(left=0)
     plt.gca().set_ylim(bottom=0)
@@ -41,8 +41,8 @@ def plotify():
         clientY[i] = 1 / clientY[i]
 
     plt.plot(x, clientY, 'rs')
-    plt.title('Average Throughput vs. Number of Clients (messages/second)')
-    plt.xlabel('Number of Clients')
+    plt.title('Average Throughput vs. A Variable (messages/second)')
+    plt.xlabel('Variable')
     plt.ylabel('Messages per second')
     plt.gca().set_xlim(left=0)
     plt.gca().set_ylim(bottom=0)

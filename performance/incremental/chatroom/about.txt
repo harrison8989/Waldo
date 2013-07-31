@@ -1,4 +1,1 @@
-The classic
-Send 1000 messages with all the bells and whistles
-
-(reproduced for reference)
+The classic chatroom example -- reproduced for reference

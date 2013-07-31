@@ -1,3 +1,3 @@
-The *null* classic
-Send 1000 messages with all the bells and whistles
-EXCEPT ALL THE MESSAGES ARE NULL!
+-Each client sends 1000 null string messages ("")
+-Clients are run separately on different processes
+-The number of clients increments over time

@@ -64,6 +64,14 @@ def plotify():
     for i in range(len(processed)):
         processed[i] = (i + 1) / processed[i]
 
+    yerr = []
+    for yList in y:
+        for i in range(len(yList)):
+            yList[i] = 1+1 / yList[i]
+        thing = sum(yList) / len(yList)
+        yerr.append(np.std(yList) * 1.95996 / np.sqrt(len(yList)))
+    print yerr
+
     plt.plot(x, processed, 'rs')
     plt.title('Average Throughput vs. Number of Clients (messages/second)')
     plt.xlabel('Number of Clients')

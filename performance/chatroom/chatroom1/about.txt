@@ -1,1 +1,4 @@
-Send 1000 messages with the string length gradually increasing (factor of 10)
+-Only one client
+-At 0, the size of the message is 3
+-As the number on the x-axis increments, the size of the message doubles
+-Messages have high regularity ("123123123123")
