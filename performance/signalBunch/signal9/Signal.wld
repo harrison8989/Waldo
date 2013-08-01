@@ -13,10 +13,12 @@ Server {
 	nothing_func = init_nothing_func;
     }
 
-    Public Function sendMSG(Text msg, Number num) { //2.928
-	//signal in for loop
+    Public Function sendMSG(Text msg, Number num) { //1.333, 1.524
+	//iteration with manipulation of variables
 	for(Number n in range(0,num)) {
-	    signal(display_msg_func,msg);
+	    Number r;
+	    r = n + 3;
+	    Number thing = r + n;
 	}
 
     }

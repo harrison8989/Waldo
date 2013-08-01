@@ -13,7 +13,7 @@ Server {
 	nothing_func = init_nothing_func;
     }
 
-    Public Function sendMSG(Text msg, Number num) { //2.928
+    Public Function sendMSG(Text msg, Number num) { //2.928, 5.616
 	//signal in for loop
 	for(Number n in range(0,num)) {
 	    signal(display_msg_func,msg);

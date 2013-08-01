@@ -33,20 +33,14 @@ def nothing(endpoint):
         pass
 
 server = Waldo.no_partner_create(Server, display_msg, nothing)
-for i in range(3,4):
+print 'Started'
+startTime = time.time()
 
-        print 'Started'
-        startTime = time.time()
+for j in range(0,numMessages):
+        server.sendMSG(str(j),1)
+        #server.sendMSG(str(j),1)
 
-        for j in range(0,numMessages):
-                server.sendMSG(str(j),i)
-                #server.sendMSG(str(j), i)
+totalTime = time.time() - startTime
+print 'Finished: ' + str(totalTime)
 
-        totalTime = time.time() - startTime
-        print 'Finished: ' + str(totalTime)
-
-
-
-        f.write(str(i) + ' ' + str(numMessages) + ' ' + str(totalTime) + '\n')
-
-        #time.sleep(1)
+f.write(str(1) + ' ' + str(numMessages) + ' ' + str(totalTime) + '\n')
