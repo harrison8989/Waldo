@@ -7,17 +7,11 @@ import shutil
 #plotify3: a lot of data that must be averaged, includes error bars
 
 dirs = {
-    'signalBunch/signal':'plotify3.py',
-    'signalBunch/signal2':'plotify3.py',
-    'signalBunch/signal3':'plotify3.py',
-    'signalBunch/signal4':'plotify3.py',
-    'signalBunch/signal5':'plotify3.py',
-    'signalBunch/signal6':'plotify3.py',
-    'signalBunch/signal7':'plotify3.py',
-    'signalBunch/signal8':'plotify3.py',
-    'signalBunch/signal9':'plotify3.py',
-    'signalBunch/signal10':'plotify3.py',
-    'signalBunch/signal11':'plotify3.py'
+    'signalBunch/signal12':'plotify3.py',
+    'signalBunch/signal13':'plotify3.py',
+    'signalBunch/signal14':'plotify3.py',
+    'signalBunch/signal15':'plotify3.py',
+    'signalBunch/signal16':'plotify3.py'
 
 }
 

@@ -17,18 +17,22 @@ def plotify():
     Takes MULTIPLE FOLDERS as opposed to single files.
     '''
     fileName = 'clientLog'
-    folders = []
     colors = ['b','g','r','c','m','y','k']
     marker = ['s','o','^','D']
     style = ['bs','go','r^','cD','m8']
     styleCounter = 0
 
-    for folder in sys.argv[1:]:
-        folders.append(folder)
 
-    #x = []
-    #y = []
-    #processed = []
+    folders = []
+    if(len(sys.argv) >= 2):
+        with open(sys.argv[1]) as dirs:
+            for dir in dirs:
+                folders.append(dir[0:-1])
+    else:
+        print 'Please input a file containing the directories.'
+        return 0
+
+
 
     for folder in folders:
 

@@ -37,8 +37,8 @@ print 'Started'
 startTime = time.time()
 
 for j in range(0,numMessages):
-        server.sendMSG(str(j),3)
-        #server.sendMSG(str(j),3)
+        server.sendMSG(str(j),1)
+        #server.sendMSG(str(j),1)
 
 totalTime = time.time() - startTime
 print 'Finished: ' + str(totalTime)
