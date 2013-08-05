@@ -9,9 +9,3 @@ Created: 2013-08-05
 -No signal
 
 3.)-No sequence actually being constructed
-
-4.)-Sequence is initiated
--No signal
-
-5.)-Sequence is initiated, and signal is called.
--Nothing else.

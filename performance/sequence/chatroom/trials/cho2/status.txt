@@ -1,0 +1,1 @@
+result of one client sending 1000 messages to server, gradually connecting more clients without having previous clients break connection
