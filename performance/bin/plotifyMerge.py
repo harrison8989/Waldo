@@ -24,6 +24,8 @@ def plotify():
     style = ['bs','go','r^','cD','m8','kv']
     styleCounter = 0
 
+    labels = []
+    plots = []
 
     folders = []
     if(len(sys.argv) >= 2):
@@ -45,28 +47,32 @@ def plotify():
         with open(folder + '/' + fileName, 'r') as clientLog:
 
             for clientData in clientLog:
-                cData = clientData.split()
 
-                if cData is not []:
-
-                    datum = int(cData[0]) * float(cData[2]) / (float(cData[1]))
-                    if(int(cData[0]) not in f_x):
-                        f_x.append(int(cData[0]))
-                        f_y.append([datum])
+                if clientData is not []:
+                    if clientData[0] == '#':
+                        labels.append(clientData[1:])
                     else:
-                        f_y[f_x.index(int(cData[0]))].append(datum)
+                        labels.append(folder)
+                        cData = clientData.split()
+                        datum = int(cData[0]) * float(cData[2]) / (float(cData[1]))
+                        if(int(cData[0]) not in f_x):
+                            f_x.append(int(cData[0]))
+                            f_y.append([datum])
+                        else:
+                            f_y[f_x.index(int(cData[0]))].append(datum)
 
         for yList in f_y:
             thing = sum(yList) / len(yList)
             f_processed.append(thing)
 
-        plt.plot(f_x, f_processed, style[styleCounter % len(style)], label=folder)
+        plot1, = plt.plot(f_x, f_processed, style[styleCounter % len(style)], label=folder)
+        plots.append(plot1)
         styleCounter += 1
 
     plt.title('Average Latency vs. Number of Clients (seconds/message)')
     plt.xlabel('Number of Clients')
     plt.ylabel('Seconds per message')
-    plt.legend(loc='upper left')
+    plt.legend(plots, labels, loc='upper left')
     plt.gca().set_xlim(left=0)
     plt.gca().set_ylim(bottom=0)
     plt.gcf().set_size_inches(8,4)
@@ -74,6 +80,7 @@ def plotify():
     plt.clf()
 
     styleCounter = 0
+    plots = []
 
     for folder in folders:
 
@@ -84,9 +91,9 @@ def plotify():
         with open(folder + '/' + fileName, 'r') as clientLog:
 
             for clientData in clientLog:
-                cData = clientData.split()
 
-                if cData is not []:
+                if clientData is not []:
+                    cData = clientData.split()
 
                     datum = float(cData[1]) / float(cData[2])
                     if(int(cData[0]) not in f_x):
@@ -99,13 +106,14 @@ def plotify():
             thing = sum(yList) / len(yList)
             f_processed.append(thing)
 
-        plt.plot(f_x, f_processed, style[styleCounter], label=folder)
+        plot2, = plt.plot(f_x, f_processed, style[styleCounter], label=folder)
+        plots.append(plot2)
         styleCounter += 1
 
     plt.title('Average Throughput vs. Number of Clients (messages/second)')
     plt.xlabel('Number of Clients')
     plt.ylabel('Messages per second')
-    plt.legend(loc='lower left')
+    plt.legend(plots, labels, loc='lower left')
     plt.gca().set_xlim(left=0)
     plt.gca().set_ylim(bottom=0)
     plt.gcf().set_size_inches(8,4)

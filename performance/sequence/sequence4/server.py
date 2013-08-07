@@ -43,8 +43,6 @@ def display_msg(endpoint, msg):
                 n += 1
                 f.write(str(time.time() - startTime) + '\n')
 
-
-
 Waldo.tcp_accept(Server, HOSTNAME, PORT, display_msg)
 
 print 'Server is up and running.'

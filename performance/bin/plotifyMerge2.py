@@ -41,12 +41,16 @@ def plotify():
         with open(folder + '/' + fileName, 'r') as clientLog:
 
             for clientData in clientLog:
-                cData = clientData.split()
 
                 if cData is not []:
 
-                    datum = int(cData[0]) * float(cData[2]) / (float(cData[1]))
-                    f_x.append(datum)
+                    if cData[0] == '#':
+                        labels.append(cData[1:])
+                    else:
+                        labels.append(folder)
+                        cData = clientData.split()
+                        datum = int(cData[0]) * float(cData[2]) / (float(cData[1]))
+                        f_x.append(datum)
 
         average = sum(f_x) / len(f_x)
         x.append(average)

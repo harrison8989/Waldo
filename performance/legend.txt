@@ -1,17 +1,21 @@
-Legend for Latency Graph
-Created: 2013-08-05
+Legend for Latency and Throughput Graphs
+Created: 2013-08-07
 
-1.)-First of sequence tests
--Sequence is initiated, and signal is called.
--Nothing else.
+1.)The classic chatroom example -- reproduced for reference
 
-2.)-Sequence is initiated
--No signal
 
-3.)-No sequence actually being constructed
+2.)-Each clients calls a function (send_msg, from the Waldo file) 1000 times
+-Calling the Waldo function send_msg triggers a sequence (SeqSendMSG)
+-Sequence body is empty -- calling the sequence doesn't actually do anything
 
-4.)-Sequence is initiated
--No signal
 
-5.)-Sequence is initiated, and signal is called.
--Nothing else.
+3.)-Very similar to chatroomC
+-Added connected_callback thread, which starts once a connection is created
+
+
+4.)-Very similar to chatroomD
+-Added signalling (adding to the queue) but not service_signalling (removing from queue)
+
+
+5.)-Very similar to chatroomD
+-Added service_signalling (removing from queue) but not signalling (adding to the queue)

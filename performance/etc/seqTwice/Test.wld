@@ -1,0 +1,30 @@
+Test
+Endpoint Client;
+Endpoint Server;
+
+Sequences {
+    SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
+}
+
+Sequence SeqSendMSG (Text msg) returns Text result
+{
+    Client.sendMSG {
+    }
+
+    Server.receiveMSG {
+    }
+
+}
+
+Client
+{
+    Public Function send_msg(Text msg) {
+        SeqSendMSG(msg);
+        SeqSendMSG(msg);
+    }
+
+}
+
+Server
+{
+}

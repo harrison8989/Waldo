@@ -7,11 +7,11 @@ import shutil
 #plotify3: a lot of data that must be averaged, includes error bars
 
 dirs = {
-    'sequence/sequence':'plotify3.py',
-    'sequence/sequence2':'plotify3.py',
-    'sequence/sequence3':'plotify3.py',
-    'sequence/sequence4':'plotify3.py',
-    'sequence/sequence5':'plotify3.py',
+    'signalMini/signal1':'plotify3.py',
+    'signalMini/signal2':'plotify3.py',
+    'signalMini/signal3':'plotify3.py',
+    'signalMini/signal4':'plotify3.py',
+    'signalMini/signal1.5':'plotify3.py'
 
 }
 
@@ -26,11 +26,13 @@ def main():
     for dir in dirs:
         initDir = os.getcwd()
         os.chdir(dir)
-        subprocess.call('python ../../../bin/wcompile.py Sequence.wld')
+        #subprocess.call('python ../../../bin/wcompile.py Sequence.wld')
 
         print '\n\n===============================\n'
         print '---Running test in directory: ' + dir + '\n'
         subprocess.call('python server.py y')
+        for i in range(0,9):
+            subprocess.call('python server.py n')
         print '\n---Finished test in directory: ' + dir + '\n'
 
         print '---Writing and copying data...',
