@@ -1,5 +1,0 @@
-chatroom/chatroom
-chatroom/chatroomC
-chatroom/chatroomD
-chatroom/chatroomE
-chatroom/chatroomF

@@ -1,2 +1,0 @@
--Next of sequence tests
--Two sequences are initiated

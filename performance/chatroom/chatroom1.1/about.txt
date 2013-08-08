@@ -1,4 +1,0 @@
--Only one client
--At 0, the size of the message is 3
--As the number on the x-axis increments, the size of the message doubles
--Messages are essentially random (each character is a random letter or number)

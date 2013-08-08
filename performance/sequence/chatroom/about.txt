@@ -1,3 +1,0 @@
--Each client sends 1000 messages
--Clients are run separately on different processes
--The number of clients increments over time

@@ -1,3 +1,0 @@
--Very similar to the original chatroom program
--Even though the server and the client have communicated, there is no actual message being passed around
--No message as opposed to a message composed of a null string

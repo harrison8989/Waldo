@@ -1,2 +1,0 @@
-broadcast done with pypy
-Starts slower, but finishes so much quicker

@@ -1,2 +1,0 @@
--Next of sequence tests
--No sequence actually being constructed

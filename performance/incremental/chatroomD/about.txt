@@ -1,2 +1,0 @@
--Very similar to chatroomC
--Added connected_callback thread, which starts once a connection is created

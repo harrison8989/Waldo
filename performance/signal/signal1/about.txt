@@ -1,2 +1,0 @@
--Server changes a global variable 1,000 times
--Only one endpoint: Server

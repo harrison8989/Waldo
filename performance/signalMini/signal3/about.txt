@@ -1,2 +1,0 @@
--Server calls a function through signalling 10,000 times
--Calling the function signals a single time using display_msg_func, which sends a message (but doesn't do anything with it)

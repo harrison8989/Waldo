@@ -1,3 +1,0 @@
--First of sequence tests
--Sequence is initiated, and signal is called.
--Nothing else.

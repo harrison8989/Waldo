@@ -1,5 +1,0 @@
-
-message PartnerStop
-{
-    required bool dummy = 1;
-}

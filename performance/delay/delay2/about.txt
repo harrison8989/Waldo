@@ -1,1 +1,0 @@
-added 20 ms delay

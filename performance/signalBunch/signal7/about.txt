@@ -1,2 +1,0 @@
--Server calls a function through signalling 10,000 times
--Calling the function creates a range from 0 to num (equals 1 in this case)

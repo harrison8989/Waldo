@@ -1,3 +1,0 @@
--Server calls a function through signalling 10,000 times
--Calling the function does not actually do anything
--Only one endpoint - server

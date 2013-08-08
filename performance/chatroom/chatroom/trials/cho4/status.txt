@@ -1,3 +1,0 @@
-basically cho2 again
-result of service_signal not actually running
-causes it to be faster!

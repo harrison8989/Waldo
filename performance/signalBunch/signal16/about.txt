@@ -1,2 +1,0 @@
--Server calls a function through signalling 10,000 times
--Calling the function calls signal within the for loop (but it loops only once)

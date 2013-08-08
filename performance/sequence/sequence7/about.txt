@@ -1,2 +1,0 @@
--First of sequence tests
--Sequence is initiated and is called thrice

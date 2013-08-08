@@ -1,1 +1,0 @@
-The classic chatroom example -- reproduced for reference
