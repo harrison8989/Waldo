@@ -1,0 +1,4 @@
+-Only one client
+-At 0, the list length is 0, and at 1, the list length is 1
+-As the number of the x-axis increments, the length of the list doubles
+-List possesses high regularity (every element is '123')

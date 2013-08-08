@@ -1,0 +1,35 @@
+Chatroom
+Endpoint Client;
+Endpoint Server;
+
+Sequences {
+    SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
+}
+
+Sequence SeqSendMSG (List (element:TrueFalse) msgs)
+{
+    Client.sendMSG {
+    }
+
+    Server.receiveMSG {
+        signal(display_msg_func, msgs);
+    }
+
+}
+
+Client
+{
+    Public Function send_msg(List (element: Text) texts) {
+        SeqSendMSG(texts);
+    }
+
+}
+
+Server
+{
+    Function (in: Text; returns: TrueFalse) display_msg_func;
+
+    onCreate (Function (in: Text; returns: TrueFalse) init_display_msg_func) {
+	display_msg_func = init_display_msg_func;
+    }
+}

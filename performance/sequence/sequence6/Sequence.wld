@@ -1,0 +1,36 @@
+Sequencing
+Endpoint Client;
+Endpoint Server;
+
+Sequences {
+    SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
+}
+
+Sequence SeqSendMSG (Text msg) returns Text result
+{
+    Client.sendMSG {
+    }
+
+    Server.receiveMSG {
+        signal(display_msg_func, msg);
+    }
+
+}
+
+Client
+{
+    Public Function send_msg(Text msg) {
+        SeqSendMSG(msg);
+        SeqSendMSG('23');
+    }
+
+}
+
+Server
+{
+    Function (in: Text; returns: TrueFalse) display_msg_func;
+
+    onCreate (Function (in: Text; returns: TrueFalse) init_display_msg_func) {
+	display_msg_func = init_display_msg_func;
+    }
+}

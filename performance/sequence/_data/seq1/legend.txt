@@ -1,0 +1,11 @@
+Legend for Latency Graph
+Created: 2013-08-05
+
+1.)-First of sequence tests
+-Sequence is initiated, and signal is called.
+-Nothing else.
+
+2.)-Sequence is initiated
+-No signal
+
+3.)-No sequence actually being constructed

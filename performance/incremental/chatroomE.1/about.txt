@@ -1,0 +1,3 @@
+-Very similar to chatroomD
+-Added signalling (adding to the queue) but not service_signalling (removing from queue)
+-Has no connected_callback

@@ -1,0 +1,21 @@
+Legend for Latency and Throughput Graphs
+Created: 2013-08-02
+
+1.)Chatroom: The classic chatroom example -- reproduced for reference
+
+
+2.)ChatroomC: Each clients calls a function (send_msg, from the Waldo file) 1000 times
+-Calling the Waldo function send_msg triggers a sequence (SeqSendMSG)
+-Sequence body is empty -- calling the sequence doesn't actually do anything
+
+
+3.)ChatroomD: Very similar to chatroomC
+-Added connected_callback thread, which starts once a connection is created
+
+
+4.)ChatroomE: Very similar to chatroomD
+-Added signalling (adding to the queue) but not service_signalling (removing from queue)
+
+
+5.)ChatroomF: Very similar to chatroomD
+-Added service_signalling (removing from queue) but not signalling (adding to the queue)

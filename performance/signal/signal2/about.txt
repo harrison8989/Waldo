@@ -1,0 +1,2 @@
+-Server calls a function through signalling 1,000 times
+-Only one endpoint - server

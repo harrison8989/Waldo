@@ -1,0 +1,2 @@
+-Server calls a function through signalling 10,000 times
+-Calling the function signals display_msg_func while also creating an empty for loop
