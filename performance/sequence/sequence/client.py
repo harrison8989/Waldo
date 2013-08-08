@@ -37,5 +37,6 @@ def main():
         f = open('clientLog', 'a')
         f.write(str(numClients) + ' ' + str(numClients * numMessages) + ' ' + str(totalTime) + '\n')
         f.close()
+        print 'Done.'
 
 main()

@@ -12,6 +12,7 @@ Sequence SeqSendMSG (Text msg) returns Text result
     }
 
     Server.receiveMSG {
+        signal(display_msg_func, msg);
     }
 
 }

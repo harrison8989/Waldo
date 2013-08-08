@@ -69,9 +69,9 @@ def plotify():
         plots.append(plot1)
         styleCounter += 1
 
-    plt.title('Average Latency vs. Number of Clients (seconds/message)')
+    plt.title('Average Latency vs. Number of Clients (seconds/event)')
     plt.xlabel('Number of Clients')
-    plt.ylabel('Seconds per message')
+    plt.ylabel('Seconds per event')
     plt.legend(plots, labels, loc='upper left')
     plt.gca().set_xlim(left=0)
     plt.gca().set_ylim(bottom=0)
@@ -110,9 +110,9 @@ def plotify():
         plots.append(plot2)
         styleCounter += 1
 
-    plt.title('Average Throughput vs. Number of Clients (messages/second)')
+    plt.title('Average Throughput vs. Number of Clients (events/second)')
     plt.xlabel('Number of Clients')
-    plt.ylabel('Messages per second')
+    plt.ylabel('Events per second')
     plt.legend(plots, labels, loc='lower left')
     plt.gca().set_xlim(left=0)
     plt.gca().set_ylim(bottom=0)

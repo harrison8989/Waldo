@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import os
 from datetime import date
+import math
 
 def plotify():
     '''
@@ -19,6 +20,7 @@ def plotify():
     '''
 
     fileName = 'clientLog'
+    labels = []
 
     folders = []
     if(len(sys.argv) >= 2):
@@ -33,6 +35,7 @@ def plotify():
 
     #generating latency graph
     x = []
+    counter = 1
     for folder in folders:
 
         f_x = []
@@ -42,15 +45,16 @@ def plotify():
 
             for clientData in clientLog:
 
-                if cData is not []:
+                if clientData is not []:
 
-                    if cData[0] == '#':
-                        labels.append(cData[1:])
+                    if clientData[0] == '#':
+                        labels.append(clientData)
                     else:
-                        labels.append(folder)
-                        cData = clientData.split()
-                        datum = int(cData[0]) * float(cData[2]) / (float(cData[1]))
-                        f_x.append(datum)
+                        labels.append(counter)
+                    counter += 1
+                    cData = clientData.split()
+                    datum = int(cData[0]) * float(cData[2]) / (float(cData[1]))
+                    f_x.append(datum)
 
         average = sum(f_x) / len(f_x)
         x.append(average)
@@ -58,11 +62,16 @@ def plotify():
     xBar = ax.bar(np.arange(len(folders))+.25, x, .50, color = 'r')
     print np.array(folders)
     ax.set_xticks(.50 + np.arange(len(folders)))
-    ax.set_xticklabels(1 + np.arange(len(folders)))
+    ax.set_xticklabels(labels)
 
-    plt.title('Average Per Message Latency')
+    xShift = .5
+    for eks in x:
+        log = math.log10(eks)
+        plt.text(xShift, 1.05 * eks, round(eks, int(3 - log)),ha='center',va='bottom')
+        xShift += 1
+    plt.title('Average Per Event Latency')
     plt.xlabel('Trial Number')
-    plt.ylabel('Seconds per message')
+    plt.ylabel('Seconds per event')
     plt.gca().set_xlim(left=0)
     plt.gca().set_ylim(bottom=0)
     plt.gcf().set_size_inches(8,4)
