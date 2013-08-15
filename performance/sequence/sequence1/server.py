@@ -55,6 +55,7 @@ for i in range(1, 2):
                 subprocess.Popen("python client.py " + str(i))
 
         #wait for endpoints to die...
-        time.sleep(4)
+        while True:
+                pass
 
         numKilled = 0

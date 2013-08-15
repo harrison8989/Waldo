@@ -6,9 +6,8 @@ from emitted import Server
 import subprocess
 import random
 import string
-import Queue
 
-numMessages = 5000
+numMessages = 1000
 numClients = 1
 
 if(len(sys.argv) >= 2):
@@ -37,10 +36,8 @@ server = Waldo.no_partner_create(Server, display_msg, nothing)
 print 'Started'
 startTime = time.time()
 
-thing = None
 for j in range(0,numMessages):
         server.sendMSG(str(j),1)
-	thing = Queue.Queue()
         #server.sendMSG(str(j),1)
 
 totalTime = time.time() - startTime

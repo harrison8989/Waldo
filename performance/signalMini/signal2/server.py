@@ -7,7 +7,7 @@ import subprocess
 import random
 import string
 
-numMessages = 5000
+numMessages = 1000
 numClients = 1
 
 if(len(sys.argv) >= 2):

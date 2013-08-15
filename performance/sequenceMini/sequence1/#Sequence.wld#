@@ -6,9 +6,9 @@ Sequences {
     SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
 }
 
-Sequence SeqSendMSG (Text msg) returns Text result
+Sequence SeqSendMSG ()
 {
-    Client.sendMSG {
+     Client.sendMSG {
     }
 
     Server.receiveMSG {
@@ -19,7 +19,7 @@ Sequence SeqSendMSG (Text msg) returns Text result
 Client
 {
     Public Function send_msg(Text msg) {
-        SeqSendMSG(msg);
+        SeqSendMSG();
     }
 
 }

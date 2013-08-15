@@ -35,13 +35,7 @@ def display_msg(endpoint, msg):
         Called when a client sends a message to the server.
         Misleading function name: display_msg doesn't actually display a msg.
         '''
-        global f
-        global n
-        global startTime
-        if(msg == str(numMessages - 1)):
-                f.write(str(n) + ' ')
-                n += 1
-                f.write(str(time.time() - startTime) + '\n')
+        pass
 
 
 
@@ -55,6 +49,6 @@ for i in range(1, 2):
                 subprocess.Popen("python client.py " + str(i))
 
         #wait for endpoints to die...
-        time.sleep(4)
+        time.sleep(3)
 
         numKilled = 0

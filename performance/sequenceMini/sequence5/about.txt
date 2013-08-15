@@ -1,0 +1,3 @@
+-Next of sequence tests
+-Sequence is initiated
+-No signal

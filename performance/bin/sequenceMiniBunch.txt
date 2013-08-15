@@ -1,0 +1,5 @@
+sequenceMini/sequence
+sequenceMini/sequence1
+sequenceMini/sequence2
+sequenceMini/sequence3
+sequenceMini/sequence4

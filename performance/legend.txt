@@ -1,13 +1,19 @@
 Legend for Latency Graph
-Created: 2013-08-08
+Created: 2013-08-15
 
-1.)-Server calls a function through signalling 10,000 times
--Calling the function signals a single time using display_msg_func, which sends a message (but doesn't do anything with it)
+1.)#Calling sequence
+-Sequence is initiated
+-No signal
 
-2.)-Calling the function signals a single time using display_msg_func, which sends a message (but doesn't do anything with it)
+2.)-Next of sequence tests
+-Sequence is initiated
+-No signal
 
-3.)-Calling the function signals a single time using display_msg_func, which sends a message (but doesn't do anything with it)
+3.)-Sequence is initiated
+-No signal
 
-4.)-Calling the function signals a single time using display_msg_func, which sends a message (but doesn't do anything with it)
+4.)-Sequence is initiated
+-No signal
 
-5.)-Calling the function signals a single time using display_msg_func, which sends a message (but doesn't do anything with it)
+5.)-Sequence is initiated
+-No signal

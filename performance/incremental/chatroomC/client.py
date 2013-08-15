@@ -12,7 +12,6 @@ def main():
         #Connecting + Starting
         client = Waldo.tcp_connect(Client, HOSTNAME, PORT)
         print 'Started'
-        time.sleep(1)
         startTime = time.time()
 
 

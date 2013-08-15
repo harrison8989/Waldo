@@ -6,7 +6,7 @@ from waldo.lib import Waldo
 
 HOSTNAME = '127.0.0.1'
 PORT = 9028
-numMessages = 1000
+numMessages = 1
 
 def main():
         #Connecting + Starting
