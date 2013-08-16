@@ -59,7 +59,7 @@ def main():
         #on Windows, though
         #hopefully, it will be fine on Linux
 pp
-        if(sys.platform == 'win32'):
+        if(sys.platform == 'win32' or sys.platform == 'cygwin'):
             subprocess.call('taskkill /im python.exe /f')
 
         print 'Done!'

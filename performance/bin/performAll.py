@@ -54,7 +54,7 @@ def main():
         #just to make sure - be sure to run pypy! taskkill only works
         #on Windows, though
         #hopefully, it will be fine on linux
-        if(sys.platform == 'win32'):
+        if(sys.platform == 'win32' or sys.platform == 'cygwin'):
             subprocess.call('taskkill /im python.exe /f')
 
         print 'Done!'
