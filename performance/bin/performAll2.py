@@ -31,9 +31,9 @@ def main():
 
         print '\n\n===============================\n'
         print '---Running test in directory: ' + folder + '\n'
-        subprocess.call('python server.py y')
+        subprocess.call(['python', 'server.py', 'y'])
         for i in range(0,9):
-            subprocess.call('python server.py n')
+            subprocess.call(['python','server.py','n'])
         print '\n---Finished test in directory: ' + folder + '\n'
 
         print '---Writing and copying data...',
@@ -52,12 +52,15 @@ def main():
         shutil.copy('../clientLog', folder[:3] + str(counter))
 
         os.chdir(folder[:3] + str(counter))
-        subprocess.call('python ' + initDir + '/bin/plotify3.py')
+        subprocess.call(['python',initDir + '/bin/plotify3.py'])
         os.chdir(initDir)
 
-        #just to make sure - be sure to run pypy!
-
-        subprocess.call('taskkill /im python.exe /f')
+        #just to make sure - be sure to run pypy! taskkill only works
+        #on Windows, though
+        #hopefully, it will be fine on Linux
+pp
+        if(sys.platform == 'win32'):
+            subprocess.call('taskkill /im python.exe /f')
 
         print 'Done!'
         print '\n===============================\n'
