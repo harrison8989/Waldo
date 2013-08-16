@@ -1,0 +1,14 @@
+Chatroom
+Endpoint Client;
+Endpoint Server;
+
+Client
+{
+    Public Function send_msg(Text msg) {
+    }
+
+}
+
+Server
+{
+}

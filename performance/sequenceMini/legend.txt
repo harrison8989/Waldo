@@ -1,0 +1,20 @@
+Legend for Latency Graph
+Created: 2013-08-15
+
+1.)#Calling sequence
+-Sequence is initiated
+-No signal
+
+2.)-Next of sequence tests
+-Sequence is initiated
+-No signal
+
+3.)-Next of sequence tests
+-Sequence is initiated
+-No signal
+
+4.)-Sequence is initiated
+-No signal
+
+5.)-Sequence is initiated
+-No signal

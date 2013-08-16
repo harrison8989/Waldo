@@ -1,4 +1,4 @@
-Sequencing
+Chatroom
 Endpoint Client;
 Endpoint Server;
 
@@ -6,12 +6,13 @@ Sequences {
     SeqSendMSG: Client.sendMSG -> Server.receiveMSG;
 }
 
-Sequence SeqSendMSG ()
+Sequence SeqSendMSG (Text msg) returns Text result
 {
-     Client.sendMSG {
+    Client.sendMSG {
     }
 
     Server.receiveMSG {
+	signal(display_msg_func, msg);
     }
 
 }
@@ -19,7 +20,7 @@ Sequence SeqSendMSG ()
 Client
 {
     Public Function send_msg(Text msg) {
-        SeqSendMSG();
+	SeqSendMSG(msg);
     }
 
 }
