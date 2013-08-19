@@ -81,7 +81,7 @@ print 'Server is up and running.'
 for i in range(1, 2):
         numClients = i
         for k in range(0, i):
-                subprocess.Popen(["python","client.py ",str(i)])
+                subprocess.Popen(["python","client.py",str(i)])
 
         #wait for endpoints to die...
         while(numKilled < numClients):
